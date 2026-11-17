@@ -2,1559 +2,693 @@
 import { useState } from "react";
 import "./App.css";
 
-// ==================== MISSIONS ====================
+// ==================== GAME SETTINGS ====================
+
+const gradeSettings = {
+  7: { farmTarget: 3, farmWater: 3, waterTarget: 600, busCapacity: 12, fare: 10 },
+  8: { farmTarget: 4, farmWater: 4, waterTarget: 900, busCapacity: 16, fare: 12 },
+  9: { farmTarget: 5, farmWater: 5, waterTarget: 1200, busCapacity: 20, fare: 15 },
+  10: { farmTarget: 6, farmWater: 6, waterTarget: 1500, busCapacity: 24, fare: 18 },
+};
 
 const missions = [
-  { id: 1, name: "Village Market", icon: "🥕", subject: "Maths", description: "Shop, calculate prices and give correct change." },
-  { id: 2, name: "Smart Farming", icon: "🌾", subject: "Maths + Science", description: "Manage seeds, crops and farm resources." },
-  { id: 3, name: "Save Every Drop", icon: "💧", subject: "Maths + Science", description: "Manage water and prevent wastage." },
-  { id: 4, name: "Build Your Village", icon: "🏡", subject: "Maths", description: "Explore shapes, area and measurements." },
-  { id: 5, name: "Village Bus Stand", icon: "🚌", subject: "Maths + Life Skills", description: "Calculate distances, travel time and ticket costs." },
-];
-
-// ==================== LEARNING DASHBOARD ====================
-
-const learningAreas = [
   {
-    icon: "🔢",
-    title: "Everyday Mathematics",
-    description: "Use numbers to solve everyday problems.",
-    topics: ["Addition and subtraction", "Multiplication and division", "Fractions", "Percentages", "Ratios"],
-    missions: "Village Market · Smart Farming",
-    color: "#fff2dc",
+    id: "farm",
+    icon: "🌾",
+    name: "Smart Farming",
+    subject: "Maths + Science",
+    description: "Run your own farm, grow crops and manage your resources.",
+    color: "#e5f3d8",
   },
   {
-    icon: "🌱",
-    title: "Sustainable Living",
-    description: "Make smart decisions about natural resources.",
-    topics: ["Water conservation", "Plant and crop growth", "Resource management", "Measurement and area"],
-    missions: "Smart Farming · Save Every Drop",
-    color: "#e8f5e8",
+    id: "water",
+    icon: "💧",
+    name: "Save Every Drop",
+    subject: "Maths + Science",
+    description: "Help your village save water and solve real-life water challenges.",
+    color: "#dceffc",
   },
   {
-    icon: "🏡",
-    title: "Real-World Problem Solving",
-    description: "Apply practical thinking to village life.",
-    topics: ["Money management", "Budget planning", "Distance and travel time", "Shapes and measurements", "Decision-making"],
-    missions: "Build Your Village · Village Bus Stand",
-    color: "#eaf2ff",
+    id: "bus",
+    icon: "🚌",
+    name: "Village Bus Stand",
+    subject: "Maths + Life Skills",
+    description: "Manage passengers, tickets, fares and a village bus journey.",
+    color: "#fce9d8",
   },
 ];
 
-// ==================== VILLAGE MARKET DATA ====================
+// ==================== MAIN APP ====================
 
-const vegetables = [
-  { id: 1, name: "Tomatoes", emoji: "🍅", price: 40, unit: "kg" },
-  { id: 2, name: "Potatoes", emoji: "🥔", price: 30, unit: "kg" },
-  { id: 3, name: "Carrots", emoji: "🥕", price: 50, unit: "kg" },
-  { id: 4, name: "Onions", emoji: "🧅", price: 35, unit: "kg" },
-  { id: 5, name: "Cabbage", emoji: "🥬", price: 25, unit: "piece" },
-  { id: 6, name: "Bananas", emoji: "🍌", price: 60, unit: "dozen" },
-  { id: 7, name: "Apples", emoji: "🍎", price: 120, unit: "kg" },
-  { id: 8, name: "Chillies", emoji: "🌶️", price: 80, unit: "kg" },
-];
-
-const budgets = {
-  7: 500,
-  8: 750,
-  9: 1000,
-  10: 1500,
-};
-
-const customerOrders = [
-  {
-    name: "Customer 1",
-    message: "I need vegetables for today's lunch!",
-    request: [
-      { id: 1, quantity: 2 },
-      { id: 2, quantity: 1 },
-      { id: 3, quantity: 1 },
-    ],
-  },
-  {
-    name: "Customer 2",
-    message: "Please pack these vegetables for my family.",
-    request: [
-      { id: 4, quantity: 2 },
-      { id: 5, quantity: 2 },
-      { id: 6, quantity: 1 },
-    ],
-  },
-  {
-    name: "Customer 3",
-    message: "I am shopping for a special occasion!",
-    request: [
-      { id: 7, quantity: 2 },
-      { id: 8, quantity: 1 },
-      { id: 1, quantity: 1 },
-    ],
-  },
-];
-
-// ==================== SMART FARMING DATA ====================
-
-const farmingChallenges = {
-  7: [
-    {
-      title: "Buy the Seeds",
-      icon: "🌱",
-      story: "You have 4 acres of farmland. Each acre needs 5 kg of wheat seeds.",
-      question: "How many kilograms of seeds do you need altogether?",
-      answer: 20,
-      unit: "kg",
-      explanation: "Seeds needed = 4 × 5 = 20 kg.",
-      topic: "Multiplication",
-    },
-    {
-      title: "Water the Crops",
-      icon: "💧",
-      story: "Each acre of your wheat farm needs 100 litres of water.",
-      question: "How much water is needed for 4 acres?",
-      answer: 400,
-      unit: "litres",
-      explanation: "Water required = 4 × 100 = 400 litres.",
-      topic: "Multiplication",
-    },
-    {
-      title: "Harvest Time",
-      icon: "🌾",
-      story: "Your farm produces 20 kg of wheat from each acre. You have 3 acres ready for harvest.",
-      question: "How many kilograms of wheat will you harvest?",
-      answer: 60,
-      unit: "kg",
-      explanation: "Total harvest = 3 × 20 = 60 kg.",
-      topic: "Multiplication",
-    },
-  ],
-  8: [
-    {
-      title: "Measure the Farm",
-      icon: "📏",
-      story: "Your rectangular farm is 12 metres long and 8 metres wide.",
-      question: "What is the area of the farm in square metres?",
-      answer: 96,
-      unit: "m²",
-      explanation: "Area = length × breadth = 12 × 8 = 96 m².",
-      topic: "Area",
-    },
-    {
-      title: "Prepare the Seeds",
-      icon: "🌱",
-      story: "You need 2 kg of seeds for every 8 square metres of farmland. Your farm has an area of 96 m².",
-      question: "How many kilograms of seeds are required?",
-      answer: 24,
-      unit: "kg",
-      explanation: "96 ÷ 8 = 12 groups. 12 × 2 = 24 kg.",
-      topic: "Division",
-    },
-    {
-      title: "Convert Water Units",
-      icon: "🚰",
-      story: "Your farm needs 3,000 litres of water. A water tank holds 1,000 litres.",
-      question: "How many full tanks of water are required?",
-      answer: 3,
-      unit: "tanks",
-      explanation: "3,000 ÷ 1,000 = 3 tanks.",
-      topic: "Unit calculations",
-    },
-  ],
-  9: [
-    {
-      title: "Calculate Fertilizer",
-      icon: "🌿",
-      story: "Your farm has 150 kg of fertilizer. You plan to use 20% of it today.",
-      question: "How many kilograms of fertilizer will you use?",
-      answer: 30,
-      unit: "kg",
-      explanation: "20% of 150 = (20 ÷ 100) × 150 = 30 kg.",
-      topic: "Percentages",
-    },
-    {
-      title: "Save Water",
-      icon: "💧",
-      story: "Your farm normally uses 800 litres of water. Drip irrigation can save 25% of the water.",
-      question: "How many litres of water will you save?",
-      answer: 200,
-      unit: "litres",
-      explanation: "25% of 800 = 200 litres saved.",
-      topic: "Percentages",
-    },
-    {
-      title: "Divide the Seeds",
-      icon: "🌱",
-      story: "You have 50 kg of seeds. The ratio of wheat seeds to rice seeds is 3:2.",
-      question: "How many kilograms of wheat seeds will you use?",
-      answer: 30,
-      unit: "kg",
-      explanation: "Total parts = 5. One part = 50 ÷ 5 = 10 kg. Wheat = 3 × 10 = 30 kg.",
-      topic: "Ratios",
-    },
-  ],
-  10: [
-    {
-      title: "Calculate the Profit",
-      icon: "💰",
-      story: "You spend ₹2,000 on seeds and farming materials. After selling your crops, you earn a 25% profit on this cost.",
-      question: "How much profit do you make?",
-      answer: 500,
-      unit: "rupees",
-      explanation: "Profit = 25% of 2,000 = ₹500.",
-      topic: "Percentages and profit",
-    },
-    {
-      title: "Plan Your Expenses",
-      icon: "🧮",
-      story: "Your farming expenses include ₹200 fixed costs and ₹5 per seed packet. Your total budget is ₹700.",
-      question: "How many seed packets can you buy? Solve 5x + 200 = 700.",
-      answer: 100,
-      unit: "packets",
-      explanation: "5x + 200 = 700. 5x = 500. x = 100.",
-      topic: "Linear equations",
-    },
-    {
-      title: "Plan the Harvest",
-      icon: "🌾",
-      story: "You harvest 1,200 kg of rice. You sell 60% of the harvest to the market.",
-      question: "How many kilograms of rice will you sell?",
-      answer: 720,
-      unit: "kg",
-      explanation: "60% of 1,200 = 720 kg.",
-      topic: "Percentages",
-    },
-  ],
-};
-
-// ==================== SAVE EVERY DROP DATA ====================
-
-const waterChallenges = {
-  7: [
-    {
-      title: "The Village Water Tank",
-      icon: "🚰",
-      story: "The village tank contains 1,000 litres of water. Families have already used 2/5 of the water.",
-      question: "How many litres of water have been used?",
-      answer: 400,
-      unit: "litres",
-      topic: "Fractions",
-      explanation: "Water used = 2/5 × 1,000 = 400 litres.",
-    },
-    {
-      title: "Save Water at Home",
-      icon: "🏡",
-      story: "A family normally uses 2,000 litres of water every month. By fixing leaking taps, they reduce their usage by 15%.",
-      question: "How many litres of water do they save?",
-      answer: 300,
-      unit: "litres",
-      topic: "Percentages",
-      explanation: "Water saved = 15/100 × 2,000 = 300 litres.",
-    },
-    {
-      title: "Share Water Fairly",
-      icon: "🌾",
-      story: "A village has 840 litres of water to distribute between two fields. The ratio of water given to Field A and Field B is 3:4.",
-      question: "How many litres should Field A receive?",
-      answer: 360,
-      unit: "litres",
-      topic: "Ratios",
-      explanation: "Total parts = 3 + 4 = 7. One part = 840 ÷ 7 = 120 litres. Field A gets 3 × 120 = 360 litres.",
-    },
-  ],
-  8: [
-    {
-      title: "Calculate the Water Saved",
-      icon: "💧",
-      story: "A village uses 2,400 litres of water daily. A conservation project reduces usage by 25%.",
-      question: "How many litres are saved each day?",
-      answer: 600,
-      unit: "litres",
-      topic: "Percentages",
-      explanation: "25% of 2,400 = 600 litres.",
-    },
-    {
-      title: "Fill the Water Tank",
-      icon: "🚰",
-      story: "A tank already contains 150 litres. A pump adds the same amount of water every minute. After 10 minutes, the tank contains 450 litres.",
-      question: "How many litres does the pump add per minute?",
-      answer: 30,
-      unit: "litres per minute",
-      topic: "Linear equations",
-      explanation: "150 + 10x = 450. 10x = 300. Therefore x = 30 litres per minute.",
-    },
-    {
-      title: "Plan Water Distribution",
-      icon: "🌱",
-      story: "A village has 1,200 litres of water. It is shared between two areas in the ratio 5:3.",
-      question: "How many litres will the area receiving the larger share get?",
-      answer: 750,
-      unit: "litres",
-      topic: "Ratios",
-      explanation: "Total parts = 8. One part = 1,200 ÷ 8 = 150. Larger share = 5 × 150 = 750 litres.",
-    },
-  ],
-  9: [
-    {
-      title: "Reduce Water Consumption",
-      icon: "💧",
-      story: "A village consumes 5,000 litres of water daily. A new system reduces consumption by 18%.",
-      question: "How many litres of water are saved daily?",
-      answer: 900,
-      unit: "litres",
-      topic: "Percentages",
-      explanation: "18% of 5,000 = 900 litres.",
-    },
-    {
-      title: "Find the Leak",
-      icon: "🔧",
-      story: "A leaking pipe loses water at a constant rate. In 4 hours, it loses 280 litres.",
-      question: "How many litres are lost in 7 hours at the same rate?",
-      answer: 490,
-      unit: "litres",
-      topic: "Direct proportion",
-      explanation: "Water lost per hour = 280 ÷ 4 = 70 litres. In 7 hours = 70 × 7 = 490 litres.",
-    },
-    {
-      title: "Divide the Water Supply",
-      icon: "🏘️",
-      story: "A village receives 1,500 litres of water. The ratio of water distributed to three areas is 2:3:5.",
-      question: "How many litres does the third area receive?",
-      answer: 750,
-      unit: "litres",
-      topic: "Ratios",
-      explanation: "Total parts = 10. One part = 1,500 ÷ 10 = 150. Third area = 5 × 150 = 750 litres.",
-    },
-  ],
-  10: [
-    {
-      title: "Calculate the Water Bill",
-      icon: "🧮",
-      story: "A household uses 40,000 litres of water. The first 30,000 litres cost ₹2 per 1,000 litres, and the remaining water costs ₹3 per 1,000 litres.",
-      question: "What is the total water bill?",
-      answer: 90,
-      unit: "rupees",
-      topic: "Arithmetic applications",
-      explanation: "First 30,000 litres cost ₹60. Remaining 10,000 litres cost ₹30. Total = ₹90.",
-    },
-    {
-      title: "Design a Water Tank",
-      icon: "📐",
-      story: "A cylindrical water tank has a radius of 7 metres and a height of 10 metres. Use π = 22/7.",
-      question: "What is the volume of the tank in cubic metres?",
-      answer: 1540,
-      unit: "m³",
-      topic: "Surface area and volume",
-      explanation: "Volume = πr²h = 22/7 × 7 × 7 × 10 = 1,540 m³.",
-    },
-    {
-      title: "Plan Rainwater Collection",
-      icon: "🌧️",
-      story: "A rooftop has an area of 200 m². Rainfall measures 5 cm. Assume all rainwater is collected.",
-      question: "How many cubic metres of rainwater can be collected?",
-      answer: 10,
-      unit: "m³",
-      topic: "Area and volume",
-      explanation: "5 cm = 0.05 m. Volume = 200 × 0.05 = 10 m³.",
-    },
-  ],
-};
-
-// ==================== REUSABLE CHALLENGE GAME ====================
-
-function ChallengeGame({
-  title,
-  icon,
-  subject,
-  challenges,
-  studentName,
-  selectedClass,
-  coins,
-  stars,
-  setCoins,
-  setStars,
-  onBack,
-  completionTitle,
-  achievement,
-  completionMessage,
-  restartLabel,
-}) {
-  const [challengeIndex, setChallengeIndex] = useState(0);
-  const [answer, setAnswer] = useState("");
-  const [feedback, setFeedback] = useState("");
-  const [solved, setSolved] = useState(false);
-  const [complete, setComplete] = useState(false);
-  const [earnedCoins, setEarnedCoins] = useState(0);
-  const [earnedStars, setEarnedStars] = useState(0);
-
-  const currentChallenge = challenges[challengeIndex];
-
-  function checkAnswer() {
-    if (answer.trim() === "") {
-      setFeedback("Please enter your answer first!");
-      return;
-    }
-
-    if (Number(answer) === currentChallenge.answer) {
-      setSolved(true);
-      setFeedback("Excellent! Your answer is correct! 🎉");
-      setCoins((previous) => previous + 10);
-      setStars((previous) => previous + 1);
-      setEarnedCoins((previous) => previous + 10);
-      setEarnedStars((previous) => previous + 1);
-    } else {
-      setFeedback("Not quite right! Try again. Read the situation carefully.");
-    }
-  }
-
-  function nextChallenge() {
-    if (challengeIndex < challenges.length - 1) {
-      setChallengeIndex((previous) => previous + 1);
-      setAnswer("");
-      setFeedback("");
-      setSolved(false);
-    } else {
-      setComplete(true);
-    }
-  }
-
-  function restartGame() {
-    setChallengeIndex(0);
-    setAnswer("");
-    setFeedback("");
-    setSolved(false);
-    setComplete(false);
-    setEarnedCoins(0);
-    setEarnedStars(0);
-    setCoins(0);
-    setStars(0);
-  }
-
-  return (
-    <main style={{ maxWidth: "1100px", margin: "auto", padding: "25px 20px 50px" }}>
-      <button className="back-btn" onClick={onBack}>
-        ← Back to Village
-      </button>
-
-      <div style={{ textAlign: "center", margin: "25px 0" }}>
-        <span className="eyebrow">
-          {title.toUpperCase()} · {subject.toUpperCase()}
-        </span>
-        <h1 style={{ fontSize: "2.3rem", margin: "12px 0" }}>
-          {icon} {title}
-        </h1>
-        <p>{completionMessage}</p>
-      </div>
-
-      {!complete ? (
-        <>
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
-            gap: "12px",
-            marginBottom: "25px",
-          }}>
-            {[
-              ["🎓", "Class", selectedClass],
-              ["📍", "Level", `${challengeIndex + 1}/3`],
-              ["🪙", "Coins", coins],
-              ["⭐", "Stars", stars],
-            ].map(([symbol, label, value]) => (
-              <div className="market-stats" key={label}>
-                <div>
-                  <span>{symbol}</span>
-                  <small>{label}</small>
-                  <strong>{value}</strong>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div style={{
-            background: title === "Save Every Drop" ? "#e8f5f5" : "#e7f5e9",
-            padding: "20px",
-            borderRadius: "16px",
-            marginBottom: "22px",
-            textAlign: "center",
-          }}>
-            <div style={{ fontSize: "3rem" }}>
-              {title === "Save Every Drop" ? "🌧️ 💧 🏡" : "👩‍🌾 🌱 🚜"}
-            </div>
-            <h2 style={{ margin: "8px 0" }}>
-              {title === "Save Every Drop" ? "Every Drop Counts!" : "Welcome, Farmer!"}
-            </h2>
-            <p>
-              Complete all three challenges to earn your rewards and unlock
-              your achievement.
-            </p>
-          </div>
-
-          <div style={{
-            background: "white",
-            padding: "25px",
-            borderRadius: "18px",
-            boxShadow: "0 4px 18px rgba(0,0,0,0.07)",
-            border: "1px solid #e5eadf",
-          }}>
-            <div style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              flexWrap: "wrap",
-              gap: "10px",
-            }}>
-              <span className="eyebrow">
-                CHALLENGE {challengeIndex + 1}
-              </span>
-              <span style={{
-                background: "#edf6e9",
-                color: "#39713b",
-                padding: "7px 13px",
-                borderRadius: "20px",
-                fontWeight: "bold",
-              }}>
-                Level {challengeIndex + 1} of 3
-              </span>
-            </div>
-
-            <h2 style={{ marginTop: "18px" }}>
-              {currentChallenge.icon} {currentChallenge.title}
-            </h2>
-
-            <div style={{
-              background: title === "Save Every Drop" ? "#f0f8f8" : "#fff8e8",
-              padding: "20px",
-              borderRadius: "12px",
-              margin: "20px 0",
-              lineHeight: "1.7",
-            }}>
-              <strong>{title === "Save Every Drop" ? "💧 Your Village Situation" : "🌻 Your Farming Situation"}</strong>
-              <p style={{ marginTop: "8px" }}>{currentChallenge.story}</p>
-            </div>
-
-            <h3 style={{ marginBottom: "12px" }}>🧠 Your Challenge</h3>
-            <p style={{ fontSize: "1.05rem", lineHeight: "1.6" }}>
-              {currentChallenge.question}
-            </p>
-
-            <div style={{ marginTop: "22px" }}>
-              <label style={{
-                display: "block",
-                fontWeight: "bold",
-                marginBottom: "9px",
-              }}>
-                Enter your answer:
-              </label>
-
-              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                <input
-                  type="number"
-                  value={answer}
-                  disabled={solved}
-                  onChange={(e) => {
-                    setAnswer(e.target.value);
-                    setFeedback("");
-                  }}
-                  placeholder="Enter your answer"
-                  style={{
-                    flex: "1",
-                    minWidth: "160px",
-                    padding: "13px",
-                    border: "1px solid #cbd5c0",
-                    borderRadius: "9px",
-                    fontSize: "1rem",
-                  }}
-                />
-                <span style={{ alignSelf: "center", fontWeight: "bold" }}>
-                  {currentChallenge.unit}
-                </span>
-              </div>
-            </div>
-
-            {feedback && (
-              <div style={{
-                marginTop: "18px",
-                padding: "15px",
-                borderRadius: "10px",
-                background: solved ? "#e7f7e9" : "#fff3df",
-                color: solved ? "#236b35" : "#875b16",
-                lineHeight: "1.6",
-              }}>
-                <strong>{feedback}</strong>
-              </div>
-            )}
-
-            {solved && (
-              <div style={{
-                marginTop: "15px",
-                padding: "16px",
-                background: "#f0f7eb",
-                borderRadius: "10px",
-                lineHeight: "1.7",
-              }}>
-                <strong>📘 Let's understand:</strong>
-                <p>{currentChallenge.explanation}</p>
-                <p style={{ marginTop: "8px" }}>🪙 10 coins earned!</p>
-                <p>⭐ 1 star earned!</p>
-              </div>
-            )}
-
-            <div style={{ marginTop: "22px" }}>
-              {!solved ? (
-                <button className="start-btn" onClick={checkAnswer} style={{ width: "100%" }}>
-                  Check My Answer ✓
-                </button>
-              ) : (
-                <button className="start-btn" onClick={nextChallenge} style={{ width: "100%" }}>
-                  {challengeIndex === 2 ? "Complete Mission 🏆" : "Next Challenge →"}
-                </button>
-              )}
-            </div>
-          </div>
-        </>
-      ) : (
-        <div style={{
-          maxWidth: "700px",
-          margin: "35px auto",
-          padding: "35px 25px",
-          background: "#f0f8ec",
-          borderRadius: "20px",
-          textAlign: "center",
-          border: "1px solid #d7e9ce",
-        }}>
-          <div style={{ fontSize: "5rem" }}>🏆</div>
-          <span className="eyebrow">MISSION COMPLETED</span>
-          <h1 style={{ color: "#32663c", margin: "12px 0" }}>
-            {completionTitle}
-          </h1>
-          <p style={{ lineHeight: "1.7" }}>
-            Amazing work{studentName.trim() ? `, ${studentName}` : ""}!
-            You successfully completed all three challenges.
-          </p>
-
-          <div style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "18px",
-            flexWrap: "wrap",
-            margin: "25px 0",
-          }}>
-            <div className="reward-stat">
-              <strong>🪙 {earnedCoins}</strong>
-              Coins Earned
-            </div>
-            <div className="reward-stat">
-              <strong>⭐ {earnedStars}</strong>
-              Stars Earned
-            </div>
-            <div className="reward-stat">
-              <strong>✅ 3/3</strong>
-              Challenges
-            </div>
-          </div>
-
-          <h3>🏅 Achievement Unlocked</h3>
-          <div style={{
-            background: "white",
-            padding: "18px",
-            borderRadius: "12px",
-            margin: "15px 0 25px",
-          }}>
-            <div style={{ fontSize: "2.5rem" }}>
-              {title === "Save Every Drop" ? "💧" : "🌾"}
-            </div>
-            <strong>{achievement}</strong>
-            <p>Completed all three challenges!</p>
-          </div>
-
-          <div style={{
-            background: "white",
-            padding: "18px",
-            borderRadius: "12px",
-            margin: "15px 0 25px",
-            textAlign: "left",
-          }}>
-            <h3 style={{ marginBottom: "12px", textAlign: "center" }}>
-              📚 What You Explored
-            </h3>
-            <ul style={{ paddingLeft: "22px", lineHeight: "2" }}>
-              {[...new Set(challenges.map((challenge) => challenge.topic))].map((topic) => (
-                <li key={topic}>{topic}</li>
-              ))}
-            </ul>
-          </div>
-
-          <button className="start-btn" onClick={onBack} style={{ width: "100%", marginBottom: "12px" }}>
-            Return to Mission Village →
-          </button>
-          <button className="back-btn" onClick={restartGame}>
-            {restartLabel} ↻
-          </button>
-        </div>
-      )}
-    </main>
-  );
-}
-
-// ==================== APP ====================
-
-function App() {
+export default function App() {
+  const [page, setPage] = useState("welcome");
   const [studentName, setStudentName] = useState("");
-  const [selectedClass, setSelectedClass] = useState("7");
-  const [playMode, setPlayMode] = useState("Individual");
-  const [screen, setScreen] = useState("welcome");
-  const [selectedMission, setSelectedMission] = useState(null);
-
-  // Market states
-  const [cart, setCart] = useState({});
-  const [payment, setPayment] = useState("");
-  const [changeReturned, setChangeReturned] = useState("");
-  const [saleComplete, setSaleComplete] = useState(false);
-
-  // Common reward states
-  const [coins, setCoins] = useState(0);
+  const [grade, setGrade] = useState("7");
+  const [mode, setMode] = useState("individual");
+  const [teamMembers, setTeamMembers] = useState(3);
+  const [activeMission, setActiveMission] = useState(null);
+  const [completed, setCompleted] = useState([]);
+  const [coins, setCoins] = useState(500);
   const [stars, setStars] = useState(0);
-  const [message, setMessage] = useState("");
-  const [orderIndex, setOrderIndex] = useState(0);
-  const [completedOrders, setCompletedOrders] = useState(0);
 
-  const [farmChallengeIndex, setFarmChallengeIndex] = useState(0);
-  const [farmAnswer, setFarmAnswer] = useState("");
-  const [farmFeedback, setFarmFeedback] = useState("");
-  const [farmSolved, setFarmSolved] = useState(false);
-  const [farmComplete, setFarmComplete] = useState(false);
+  const settings = gradeSettings[grade];
 
-  const total = vegetables.reduce(
-    (sum, item) => sum + item.price * (cart[item.id] || 0),
-    0
-  );
-
-  const itemCount = Object.values(cart).reduce(
-    (sum, quantity) => sum + quantity,
-    0
-  );
-
-  const change = Number(payment) - total;
-  const budget = budgets[selectedClass];
-  const currentOrder = customerOrders[orderIndex];
-
-  const classChallenges = farmingChallenges[selectedClass];
-  const currentFarmChallenge = classChallenges[farmChallengeIndex];
+  function finishMission(id, reward) {
+    if (!completed.includes(id)) {
+      setCompleted((old) => [...old, id]);
+      setCoins((old) => old + reward);
+      setStars((old) => old + 1);
+    }
+    setPage("dashboard");
+    setActiveMission(null);
+  }
 
   function openMission(mission) {
-    setSelectedMission(mission);
-    setScreen("mission");
-
-    setCart({});
-    setPayment("");
-    setChangeReturned("");
-    setSaleComplete(false);
-    setMessage("");
-    setOrderIndex(0);
-    setCompletedOrders(0);
-
-    setFarmChallengeIndex(0);
-    setFarmAnswer("");
-    setFarmFeedback("");
-    setFarmSolved(false);
-    setFarmComplete(false);
-
-    setCoins(0);
-    setStars(0);
+    setActiveMission(mission);
+    setPage("intro");
   }
-
-  function returnToVillage() {
-    setScreen("village");
-    setSelectedMission(null);
-  }
-
-  // ==================== MARKET FUNCTIONS ====================
-
-  function addToCart(id) {
-    if (saleComplete) return;
-
-    const request = currentOrder.request.find((item) => item.id === id);
-
-    if (!request) {
-      setMessage("This item is not on the customer's shopping list!");
-      return;
-    }
-
-    const quantity = cart[id] || 0;
-
-    if (quantity >= request.quantity) {
-      setMessage("You already have the required quantity!");
-      return;
-    }
-
-    const vegetable = vegetables.find((item) => item.id === id);
-
-    if (total + vegetable.price > budget) {
-      setMessage("This order exceeds the class budget!");
-      return;
-    }
-
-    setCart((previous) => ({
-      ...previous,
-      [id]: quantity + 1,
-    }));
-
-    setMessage("");
-  }
-
-  function removeFromCart(id) {
-    if (saleComplete) return;
-
-    setCart((previous) => {
-      const updated = { ...previous };
-
-      if (updated[id] > 1) {
-        updated[id]--;
-      } else {
-        delete updated[id];
-      }
-
-      return updated;
-    });
-
-    setMessage("");
-  }
-
-  function isOrderCorrect() {
-    return vegetables.every((item) => {
-      const request = currentOrder.request.find((entry) => entry.id === item.id);
-      return (cart[item.id] || 0) === (request ? request.quantity : 0);
-    });
-  }
-
-  function completeSale() {
-    if (itemCount === 0) {
-      setMessage("Please add vegetables to the basket!");
-      return;
-    }
-
-    if (!isOrderCorrect()) {
-      setMessage("Check the customer's shopping list!");
-      return;
-    }
-
-    if (payment.trim() === "" || Number(payment) < total) {
-      setMessage("The customer has not paid enough!");
-      return;
-    }
-
-    if (changeReturned.trim() === "") {
-      setMessage("Please calculate and enter the change you will return!");
-      return;
-    }
-
-    if (Number(changeReturned) !== change) {
-      setMessage(`Incorrect change! Calculate again. The correct change is ₹${change}.`);
-      return;
-    }
-
-    setCoins((previous) => previous + 20);
-    setStars((previous) => previous + 3);
-    setCompletedOrders((previous) => previous + 1);
-    setSaleComplete(true);
-    setMessage("Perfect! Correct order and correct change! 🎉");
-  }
-
-  function serveNextCustomer() {
-    if (orderIndex < 2) {
-      setOrderIndex((previous) => previous + 1);
-      setCart({});
-      setPayment("");
-      setChangeReturned("");
-      setSaleComplete(false);
-      setMessage("");
-    }
-  }
-
-  // ==================== SMART FARMING FUNCTIONS ====================
-
-  function checkFarmAnswer() {
-    if (farmAnswer.trim() === "") {
-      setFarmFeedback("Please enter your answer first!");
-      return;
-    }
-
-    if (Number(farmAnswer) === currentFarmChallenge.answer) {
-      setFarmSolved(true);
-      setFarmFeedback("Excellent! Your calculation is correct! 🎉");
-      setCoins((previous) => previous + 10);
-      setStars((previous) => previous + 1);
-    } else {
-      setFarmFeedback("Not quite right! Try again. Read the farming information carefully.");
-    }
-  }
-
-  function nextFarmChallenge() {
-    if (farmChallengeIndex < classChallenges.length - 1) {
-      setFarmChallengeIndex((previous) => previous + 1);
-      setFarmAnswer("");
-      setFarmFeedback("");
-      setFarmSolved(false);
-    } else {
-      setFarmComplete(true);
-    }
-  }
-
-  function restartFarm() {
-    setFarmChallengeIndex(0);
-    setFarmAnswer("");
-    setFarmFeedback("");
-    setFarmSolved(false);
-    setFarmComplete(false);
-    setCoins(0);
-    setStars(0);
-  }
-
-  function openRewards() {
-    setScreen("rewards");
-  }
-
-  // ==================== RENDER ====================
 
   return (
-    <div className="app">
+    <div className="gq-app">
+      <style>{`
+        * { box-sizing: border-box; }
+        .gq-app {
+          min-height: 100vh;
+          padding: 24px 16px 50px;
+          background: linear-gradient(135deg, #fff4f7, #fff9ed);
+          color: #493844;
+          font-family: Arial, sans-serif;
+        }
+        .gq-shell { max-width: 1050px; margin: auto; }
+        .gq-header {
+          display: flex; justify-content: space-between; align-items: center;
+          gap: 12px; flex-wrap: wrap; margin-bottom: 25px;
+        }
+        .gq-logo { font-size: 25px; font-weight: 900; color: #a34c79; }
+        .gq-tagline { font-size: 11px; letter-spacing: 2px; color: #936b80; margin-top: 4px; }
+        .gq-pill {
+          background: white; border: 1px solid #f0d6e2; border-radius: 30px;
+          padding: 10px 15px; font-size: 13px; font-weight: bold;
+        }
+        .gq-panel {
+          background: rgba(255,255,255,.94); border: 1px solid #f1dce5;
+          border-radius: 22px; padding: 28px; margin-bottom: 20px;
+          box-shadow: 0 8px 25px rgba(120,70,95,.07);
+        }
+        .gq-center { text-align: center; }
+        .gq-kicker { color: #b36a8c; font-weight: bold; font-size: 12px; letter-spacing: 2px; }
+        .gq-title { font-size: clamp(27px, 5vw, 43px); line-height: 1.15; margin: 12px 0; color: #71445d; }
+        .gq-subtitle { color: #806d79; line-height: 1.65; max-width: 680px; margin: 10px auto; }
+        .gq-btn {
+          border: 0; border-radius: 12px; padding: 13px 20px; cursor: pointer;
+          background: #b85f88; color: white; font-size: 14px; font-weight: bold;
+          margin: 5px; transition: .2s;
+        }
+        .gq-btn:hover { transform: translateY(-2px); filter: brightness(.97); }
+        .gq-btn.secondary { background: #f7e8ef; color: #884e6b; }
+        .gq-btn.green { background: #65965d; }
+        .gq-btn.blue { background: #4c91b5; }
+        .gq-btn.orange { background: #d58b4d; }
+        .gq-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+        .gq-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 16px; }
+        .gq-card {
+          border: 1px solid #f0dce5; border-radius: 18px; padding: 20px;
+          background: white; text-align: left;
+        }
+        .gq-card h3 { margin: 8px 0; color: #71445d; }
+        .gq-card p { color: #806d79; font-size: 14px; line-height: 1.5; }
+        .gq-icon { font-size: 38px; }
+        .gq-label { display: block; font-weight: bold; margin: 14px 0 7px; font-size: 13px; }
+        .gq-input, .gq-select {
+          width: 100%; padding: 12px; border: 1px solid #e8cbd9;
+          border-radius: 10px; background: white; color: #493844; font-size: 15px;
+        }
+        .gq-stats { display: grid; grid-template-columns: repeat(auto-fit,minmax(120px,1fr)); gap: 12px; margin: 18px 0; }
+        .gq-stat { background: #fff2f7; border-radius: 14px; padding: 15px; text-align: center; }
+        .gq-stat strong { display: block; font-size: 24px; color: #a34c79; }
+        .gq-stat span { font-size: 12px; color: #806d79; }
+        .gq-progress { height: 10px; background: #f3e4eb; border-radius: 20px; overflow: hidden; margin: 12px 0; }
+        .gq-progress > div { height: 100%; background: #b85f88; transition: width .25s; }
+        .gq-question { background: #fff6e9; border-radius: 15px; padding: 18px; margin: 16px 0; line-height: 1.6; }
+        .gq-option { background: white; border: 1px solid #ead4df; padding: 12px; border-radius: 10px; margin: 7px 0; cursor: pointer; }
+        .gq-option.selected { border: 2px solid #b85f88; background: #fff1f7; }
+        .gq-small { font-size: 12px; color: #8d7884; }
+        .gq-plot {
+          border: 2px solid #c8dfb7; border-radius: 14px; padding: 15px;
+          background: #eff8e9; text-align: center; min-height: 125px;
+        }
+        .gq-plot strong { display: block; margin: 7px 0; }
+        .gq-notice { padding: 12px; border-radius: 10px; background: #f7edf2; margin: 12px 0; }
+        @media(max-width:600px) {
+          .gq-panel { padding: 20px 16px; }
+          .gq-header { align-items: flex-start; }
+        }
+      `}</style>
 
-      {/* NAVBAR */}
-
-      <header className="navbar">
-        <div className="logo">
-          <span className="logo-icon">🎮</span>
+      <div className="gq-shell">
+        <header className="gq-header">
           <div>
-            <h2>GyaanQuest</h2>
-            <p>LEARN • PLAY • GROW</p>
+            <div className="gq-logo">🏡 GyaanQuest</div>
+            <div className="gq-tagline">LEARN • PLAY • GROW</div>
           </div>
-        </div>
-        <div className="offline-tag">● Offline Friendly</div>
-      </header>
+          <div className="gq-pill">● Offline Friendly</div>
+        </header>
 
-      {/* WELCOME PAGE */}
+        {page === "welcome" && (
+          <WelcomePage onStart={() => setPage("setup")} />
+        )}
 
-      {screen === "welcome" && (
-        <main className="home">
-          <section className="welcome">
-            <div>
-              <span className="eyebrow">WELCOME TO A NEW WAY OF LEARNING</span>
-              <h1>Learning becomes an <span>Adventure!</span> 🏡</h1>
+        {page === "setup" && (
+          <SetupPage
+            studentName={studentName}
+            setStudentName={setStudentName}
+            grade={grade}
+            setGrade={setGrade}
+            mode={mode}
+            setMode={setMode}
+            teamMembers={teamMembers}
+            setTeamMembers={setTeamMembers}
+            onContinue={() => setPage("dashboard")}
+          />
+        )}
 
-              <p>
-                Every day, students face challenges that require practical
-                thinking and problem-solving. But learning does not always
-                happen inside a classroom.
-              </p>
+        {page === "dashboard" && (
+          <Dashboard
+            name={studentName}
+            grade={grade}
+            mode={mode}
+            teamMembers={teamMembers}
+            coins={coins}
+            stars={stars}
+            completed={completed}
+            onOpen={openMission}
+            onChangeProfile={() => setPage("setup")}
+          />
+        )}
 
-              <p>
-                GyaanQuest transforms everyday village life into exciting
-                interactive adventures where students explore, experiment
-                and discover through play.
-              </p>
+        {page === "intro" && activeMission && (
+          <MissionIntro
+            mission={activeMission}
+            onStart={() => setPage("game")}
+            onBack={() => setPage("dashboard")}
+          />
+        )}
 
-              <button className="start-btn" onClick={() => setScreen("login")}>
-                Get Started →
-              </button>
-            </div>
+        {page === "game" && activeMission?.id === "farm" && (
+          <FarmingGame
+            settings={settings}
+            onFinish={() => finishMission("farm", 100)}
+            onBack={() => setPage("dashboard")}
+          />
+        )}
 
-            <div className="welcome-art">
-              🌳 🏡 🌾
-              <p>LEARN • PLAY • GROW</p>
-            </div>
-          </section>
+        {page === "game" && activeMission?.id === "water" && (
+          <WaterGame
+            settings={settings}
+            onFinish={() => finishMission("water", 100)}
+            onBack={() => setPage("dashboard")}
+          />
+        )}
 
-          <section style={{
-            maxWidth: "950px",
-            margin: "35px auto",
-            padding: "25px",
-            textAlign: "center",
-            background: "#f5f8ef",
-            borderRadius: "18px",
-          }}>
-            <h2>Why GyaanQuest?</h2>
-            <p style={{ lineHeight: "1.8", color: "#536052" }}>
-              We aim to make learning engaging, accessible and connected
-              to real-life situations, especially for students in rural
-              communities.
-            </p>
-
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-              gap: "18px",
-              marginTop: "25px",
-            }}>
-              <div>
-                <span style={{ fontSize: "2.5rem" }}>🎮</span>
-                <h3>Learn Through Games</h3>
-                <p>Explore interactive challenges.</p>
-              </div>
-              <div>
-                <span style={{ fontSize: "2.5rem" }}>🏡</span>
-                <h3>Real-Life Situations</h3>
-                <p>Connect learning with everyday life.</p>
-              </div>
-              <div>
-                <span style={{ fontSize: "2.5rem" }}>🤝</span>
-                <h3>Learn Together</h3>
-                <p>Play individually or with friends.</p>
-              </div>
-            </div>
-          </section>
-        </main>
-      )}
-
-      {/* PLAYER LOGIN */}
-
-      {screen === "login" && (
-        <main className="home">
-          <section className="setup-card">
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "3.5rem", marginBottom: "12px" }}>🎮</div>
-              <span className="eyebrow">YOUR ADVENTURE STARTS HERE</span>
-              <h2 style={{ marginTop: "12px" }}>Player Login</h2>
-              <p className="section-subtitle">
-                Tell us a little about yourself before entering GyaanQuest!
-              </p>
-            </div>
-
-            <label>Student Name / Team Name</label>
-            <input
-              value={studentName}
-              onChange={(e) => setStudentName(e.target.value)}
-              placeholder="Enter your name or team name"
-            />
-
-            <label>Select Your Class</label>
-            <div className="class-options">
-              {["7", "8", "9", "10"].map((grade) => (
-                <button
-                  key={grade}
-                  className={selectedClass === grade ? "class-btn active" : "class-btn"}
-                  onClick={() => setSelectedClass(grade)}
-                >
-                  Class {grade}
-                </button>
-              ))}
-            </div>
-
-            <label>Choose Your Playing Mode</label>
-            <div className="mode-options">
-              <button
-                className={playMode === "Individual" ? "mode-btn selected" : "mode-btn"}
-                onClick={() => setPlayMode("Individual")}
-              >
-                <span>👤</span>
-                <strong>Individual Mode</strong>
-                <small>Play on your own</small>
-              </button>
-
-              <button
-                className={playMode === "Team" ? "mode-btn selected" : "mode-btn"}
-                onClick={() => setPlayMode("Team")}
-              >
-                <span>👥</span>
-                <strong>Team Mode</strong>
-                <small>Play with 3–5 friends</small>
-              </button>
-            </div>
-
-            <button className="start-btn" onClick={() => {
-              if (!studentName.trim()) {
-                alert("Please enter your name or team name!");
-                return;
-              }
-              setScreen("dashboard");
-            }}>
-              Enter GyaanQuest →
-            </button>
-
-            <div style={{ textAlign: "center" }}>
-              <button className="back-btn" onClick={() => setScreen("welcome")}>
-                ← Back to Welcome
-              </button>
-            </div>
-          </section>
-        </main>
-      )}
-
-      {/* LEARNING DASHBOARD */}
-
-      {screen === "dashboard" && (
-        <main style={{ maxWidth: "1100px", margin: "auto", padding: "35px 20px 55px" }}>
-          <div style={{ textAlign: "center", marginBottom: "30px" }}>
-            <span className="eyebrow">YOUR LEARNING JOURNEY</span>
-            <h1 style={{ margin: "12px 0", fontSize: "2.3rem" }}>
-              Discover What You Can Explore! 📚
-            </h1>
-            <p style={{ color: "#647067", lineHeight: "1.7" }}>
-              Welcome{studentName.trim() ? `, ${studentName}` : ""}!
-              Here's a look at the skills and ideas waiting for you inside Mission Village.
-            </p>
-            <p style={{ fontWeight: "bold", marginTop: "10px" }}>
-              Class {selectedClass} · {playMode} Mode
-            </p>
-          </div>
-
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-            gap: "20px",
-          }}>
-            {learningAreas.map((area) => (
-              <section key={area.title} style={{
-                background: area.color,
-                padding: "24px",
-                borderRadius: "18px",
-                border: "1px solid rgba(0,0,0,0.06)",
-              }}>
-                <div style={{ fontSize: "2.7rem" }}>{area.icon}</div>
-                <h2 style={{ fontSize: "1.25rem", margin: "12px 0 8px" }}>
-                  {area.title}
-                </h2>
-                <p style={{ lineHeight: "1.6", color: "#536052" }}>
-                  {area.description}
-                </p>
-                <h3 style={{ fontSize: "1rem", marginTop: "20px" }}>
-                  What you'll explore
-                </h3>
-                <ul style={{ paddingLeft: "20px", lineHeight: "1.9" }}>
-                  {area.topics.map((topic) => <li key={topic}>{topic}</li>)}
-                </ul>
-                <div style={{
-                  marginTop: "18px",
-                  padding: "12px",
-                  background: "rgba(255,255,255,0.7)",
-                  borderRadius: "10px",
-                  fontSize: "0.9rem",
-                }}>
-                  <strong>Explore through:</strong>
-                  <p style={{ marginTop: "5px" }}>{area.missions}</p>
-                </div>
-              </section>
-            ))}
-          </div>
-
-          <div style={{
-            textAlign: "center",
-            marginTop: "35px",
-            padding: "25px",
-            background: "#f5f8ef",
-            borderRadius: "18px",
-          }}>
-            <h2>Ready to put your skills into action? 🚀</h2>
-            <p style={{ margin: "10px 0 20px", color: "#59665a" }}>
-              Choose a mission, explore a village location and take on exciting real-world challenges!
-            </p>
-            <button className="start-btn" onClick={() => setScreen("village")}>
-              Explore Mission Village →
-            </button>
-            <div style={{ marginTop: "15px" }}>
-              <button className="back-btn" onClick={() => setScreen("login")}>
-                ← Back to Player Login
-              </button>
-            </div>
-          </div>
-        </main>
-      )}
-
-      {/* VILLAGE MAP */}
-
-      {screen === "village" && (
-        <main className="village-page">
-          <div className="village-heading">
-            <span className="eyebrow">
-              CLASS {selectedClass} · {playMode.toUpperCase()} MODE
-            </span>
-            <h1>Explore Mission Village 🏡</h1>
-            <p>Choose a location on the map to begin your adventure.</p>
-          </div>
-
-          <div className="village-instructions">
-            <span>🧭</span>
-            <div>
-              <strong>Your Mission Map</strong>
-              <p>Explore all five locations and complete exciting challenges!</p>
-            </div>
-          </div>
-
-          <div className="village-map">
-            <div className="village-sun">☀️</div>
-            <div className="village-cloud cloud-one">☁️</div>
-            <div className="village-cloud cloud-two">☁️</div>
-            <div className="village-road road-one" />
-            <div className="village-road road-two" />
-            <div className="village-road road-three" />
-            <div className="map-decoration tree tree-one">🌳</div>
-            <div className="map-decoration tree tree-two">🌴</div>
-            <div className="map-decoration tree tree-three">🌳</div>
-            <div className="map-decoration field-decoration">🌾🌾</div>
-            <div className="map-decoration pond-decoration">💧</div>
-
-            {missions.map((mission) => (
-              <button
-                key={mission.id}
-                className={`map-location location-${mission.id}`}
-                onClick={() => openMission(mission)}
-              >
-                <span className="map-icon">{mission.icon}</span>
-                <strong>{mission.name}</strong>
-                <small>{mission.subject}</small>
-              </button>
-            ))}
-          </div>
-
-          <button className="back-btn" onClick={() => setScreen("dashboard")}>
-            ← Back to Learning Dashboard
-          </button>
-        </main>
-      )}
-
-      {/* MARKET REWARDS */}
-
-      {screen === "rewards" && (
-        <main className="rewards-page">
-          <div className="rewards-trophy">🏆</div>
-          <span className="eyebrow">MISSION COMPLETED</span>
-          <h1>Market Champion!</h1>
-          <p>
-            Amazing work{studentName.trim() ? `, ${studentName}` : ""}!
-            You successfully served all three customers.
-          </p>
-
-          <div className="rewards-total">
-            <div className="reward-stat">
-              <strong>🪙 {coins}</strong>
-              Coins Earned
-            </div>
-            <div className="reward-stat">
-              <strong>⭐ {stars}</strong>
-              Stars Earned
-            </div>
-            <div className="reward-stat">
-              <strong>✅ {completedOrders}/3</strong>
-              Orders Completed
-            </div>
-          </div>
-
-          <h2>Your Achievement Badges</h2>
-          <div className="reward-badges">
-            <div className="reward-badge">
-              <span>🛍️</span>
-              <strong>Smart Shopper</strong>
-              <p>Completed all three shopping lists correctly.</p>
-            </div>
-            <div className="reward-badge">
-              <span>🧮</span>
-              <strong>Quick Calculator</strong>
-              <p>Calculated the correct change for all customers.</p>
-            </div>
-            <div className="reward-badge">
-              <span>🏆</span>
-              <strong>Market Champion</strong>
-              <p>Successfully served all three customers.</p>
-            </div>
-          </div>
-
-          <h3>Skills You Used</h3>
-          <p style={{ lineHeight: "1.8" }}>
-            Shopping calculations · Money management · Budget planning · Calculating totals and change
-          </p>
-
-          <h3>Your Star Collection</h3>
-          <div className="reward-progress">
-            <div className="reward-progress-fill" style={{ width: `${(stars / 9) * 100}%` }} />
-          </div>
-          <p className="reward-note">{stars} out of 9 stars collected!</p>
-
-          <button className="reward-button" onClick={returnToVillage}>
-            Return to Mission Village →
-          </button>
-        </main>
-      )}
-
-      {/* MISSION SCREEN */}
-
-      {screen === "mission" && selectedMission && (
-        <>
-          {/* VILLAGE MARKET */}
-
-          {selectedMission.id === 1 && (
-            <main className="market-page">
-              <div className="market-header">
-                <button className="back-btn" onClick={returnToVillage}>
-                  ← Back to Village
-                </button>
-                <p className="eyebrow">MISSION 1 · MATHS</p>
-                <h1>🥕 Village Market</h1>
-                <p>Become the best shopkeeper in the village!</p>
-              </div>
-
-              <div className="market-stats">
-                <div><span>🎓</span><small>Class</small><strong>{selectedClass}</strong></div>
-                <div><span>💰</span><small>Budget</small><strong>₹{budget}</strong></div>
-                <div><span>🪙</span><small>Coins</small><strong>{coins}</strong></div>
-                <div><span>⭐</span><small>Stars</small><strong>{stars}</strong></div>
-                <div><span>🧺</span><small>Basket</small><strong>{itemCount} items</strong></div>
-              </div>
-
-              <div className="customer-order">
-                <div className="customer-avatar">🧑‍🌾</div>
-                <div className="customer-details">
-                  <span className="eyebrow">CUSTOMER {orderIndex + 1} OF 3</span>
-                  <h2>{currentOrder.name} has arrived!</h2>
-                  <p>{currentOrder.message}</p>
-                  <strong>Shopping List</strong>
-                  <div className="order-list">
-                    {currentOrder.request.map((request) => {
-                      const item = vegetables.find((v) => v.id === request.id);
-                      return (
-                        <span className="order-item" key={request.id}>
-                          {item.emoji} {item.name} × {request.quantity}
-                        </span>
-                      );
-                    })}
-                  </div>
-                  <p className="order-progress">Orders completed: {completedOrders} / 3</p>
-                </div>
-              </div>
-
-              <div className="market-layout">
-                <section className="shop-section">
-                  <h2>🛍️ Vegetable Shop</h2>
-                  <p className="basket-subtitle">Choose items from the shopping list.</p>
-
-                  <div className="vegetable-grid">
-                    {vegetables.map((item) => {
-                      const request = currentOrder.request.find((r) => r.id === item.id);
-                      const required = request ? request.quantity : 0;
-                      const quantity = cart[item.id] || 0;
-
-                      return (
-                        <div className="vegetable-card" key={item.id}>
-                          <span className="vegetable-emoji">{item.emoji}</span>
-                          <strong>{item.name}</strong>
-                          <span className="vegetable-price">₹{item.price} / {item.unit}</span>
-                          <small>{required ? `Required: ${required}` : "Not in this order"}</small>
-                          <button
-                            className="add-button"
-                            disabled={saleComplete || !required || quantity >= required}
-                            onClick={() => addToCart(item.id)}
-                          >
-                            {!required ? "Not Required" : quantity >= required ? "Added ✓" : "Add to Basket +"}
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </section>
-
-                <aside className="basket-section">
-                  <h2>🧺 Shopping Basket</h2>
-
-                  {itemCount === 0 ? (
-                    <div className="empty-basket">
-                      <span>🧺</span>
-                      <p>Your basket is empty!</p>
-                      <small>Add items from the shop.</small>
-                    </div>
-                  ) : (
-                    <div className="basket-items">
-                      {vegetables.filter((item) => cart[item.id]).map((item) => (
-                        <div className="basket-item" key={item.id}>
-                          <span className="basket-emoji">{item.emoji}</span>
-                          <div className="basket-item-info">
-                            <strong>{item.name}</strong>
-                            <small>₹{item.price} × {cart[item.id]}</small>
-                          </div>
-                          <div className="quantity-controls">
-                            <button disabled={saleComplete} onClick={() => removeFromCart(item.id)}>−</button>
-                            <span>{cart[item.id]}</span>
-                            <button
-                              disabled={saleComplete || cart[item.id] >= currentOrder.request.find((r) => r.id === item.id).quantity}
-                              onClick={() => addToCart(item.id)}
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="bill-total">
-                    <span>Total Amount</span>
-                    <strong>₹{total}</strong>
-                  </div>
-
-                  <div className="budget-progress">
-                    <div className="budget-label">
-                      <span>Class budget</span>
-                      <span>₹{budget - total} left</span>
-                    </div>
-                    <div className="budget-track">
-                      <div className="budget-fill" style={{ width: `${Math.min((total / budget) * 100, 100)}%` }} />
-                    </div>
-                  </div>
-
-                  <div className="payment-section">
-                    <label>💵 Customer Payment (₹)</label>
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="Enter payment"
-                      value={payment}
-                      disabled={saleComplete}
-                      onChange={(e) => {
-                        setPayment(e.target.value);
-                        setChangeReturned("");
-                        setMessage("");
-                      }}
-                    />
-                  </div>
-
-                  {payment !== "" && total > 0 && (
-                    <div className="change-display">
-                      <span>Amount to return</span>
-                      <strong>{change >= 0 ? `₹${change}` : "Insufficient payment"}</strong>
-                    </div>
-                  )}
-
-                  {payment !== "" && total > 0 && change >= 0 && (
-                    <div className="payment-section">
-                      <label>🧮 Enter Change You Will Return (₹)</label>
-                      <input
-                        className="change-input"
-                        type="number"
-                        min="0"
-                        placeholder="Calculate the change"
-                        value={changeReturned}
-                        disabled={saleComplete}
-                        onChange={(e) => {
-                          setChangeReturned(e.target.value);
-                          setMessage("");
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  {message && (
-                    <p className={saleComplete ? "success-message" : "error-message"}>
-                      {message}
-                    </p>
-                  )}
-
-                  {!saleComplete && (
-                    <button className="checkout-button" onClick={completeSale}>
-                      Complete Sale ✓
-                    </button>
-                  )}
-
-                  {saleComplete && (
-                    <div className="sale-success">
-                      <span>🎉</span>
-                      <h3>Order Completed!</h3>
-                      <p>Correct shopping list and change!</p>
-                      <p>⭐ 3 Stars earned!</p>
-                      <p>🪙 20 Coins earned!</p>
-                      {orderIndex < 2 ? (
-                        <button className="add-button" onClick={serveNextCustomer}>
-                          Serve Next Customer →
-                        </button>
-                      ) : (
-                        <button className="add-button" onClick={openRewards}>
-                          View My Rewards 🏆
-                        </button>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="market-tip">
-                    💡 <strong>Challenge Tip:</strong> Pay attention to the customer's shopping list and make sure the basket is correct!
-                  </div>
-                </aside>
-              </div>
-            </main>
-          )}
-
-          {/* SMART FARMING */}
-
-          {selectedMission.id === 2 && (
-            <main className="farm-page">
-              <ChallengeGame
-                title="Smart Farming"
-                icon="🌾"
-                subject="Maths + Science"
-                challenges={classChallenges}
-                studentName={studentName}
-                selectedClass={selectedClass}
-                coins={coins}
-                stars={stars}
-                setCoins={setCoins}
-                setStars={setStars}
-                onBack={returnToVillage}
-                completionTitle="Farming Champion!"
-                achievement="Smart Farmer"
-                completionMessage="Welcome to your farm! Make smart decisions, grow healthy crops and become a farming champion."
-                restartLabel="Play Smart Farming Again"
-              />
-            </main>
-          )}
-
-          {/* SAVE EVERY DROP */}
-
-          {selectedMission.id === 3 && (
-            <main className="water-page">
-              <ChallengeGame
-                title="Save Every Drop"
-                icon="💧"
-                subject="Maths + Science"
-                challenges={waterChallenges[selectedClass]}
-                studentName={studentName}
-                selectedClass={selectedClass}
-                coins={coins}
-                stars={stars}
-                setCoins={setCoins}
-                setStars={setStars}
-                onBack={returnToVillage}
-                completionTitle="Water Conservation Champion!"
-                achievement="Water Guardian"
-                completionMessage="Help the villagers use water wisely and protect this precious resource."
-                restartLabel="Play Save Every Drop Again"
-              />
-            </main>
-          )}
-
-          {/* OTHER MISSIONS */}
-
-          {[4, 5].includes(selectedMission.id) && (
-            <main className="mission-detail">
-              <button className="back-btn" onClick={returnToVillage}>
-                ← Back to Village
-              </button>
-              <span className="large-mission-icon">{selectedMission.icon}</span>
-              <span className="eyebrow">MISSION {selectedMission.id}</span>
-              <h1>{selectedMission.name}</h1>
-              <p>{selectedMission.description}</p>
-              <div className="coming-soon">
-                <h2>🚧 Interactive Game Coming Next!</h2>
-                <p>We are building this village adventure for you.</p>
-              </div>
-              <button className="start-btn" onClick={returnToVillage}>
-                Explore Other Missions
-              </button>
-            </main>
-          )}
-        </>
-      )}
-
-      {/* FOOTER */}
-
-      <footer>
-        <strong>GyaanQuest – Learn • Play • Grow</strong>
-        <br />
-        <small>Turning everyday village life into an interactive classroom.</small>
-      </footer>
+        {page === "game" && activeMission?.id === "bus" && (
+          <BusGame
+            settings={settings}
+            onFinish={() => finishMission("bus", 100)}
+            onBack={() => setPage("dashboard")}
+          />
+        )}
+      </div>
     </div>
   );
 }
 
-export default App;
+// ==================== WELCOME PAGE ====================
+
+function WelcomePage({ onStart }) {
+  return (
+    <section className="gq-panel gq-center">
+      <div style={{ fontSize: 65 }}>🏡🌻</div>
+      <div className="gq-kicker">YOUR ADVENTURE BEGINS</div>
+      <h1 className="gq-title">Welcome to Mission Village!</h1>
+      <p className="gq-subtitle">
+        Learning should connect with the world around us. Many students
+        learn better when they can explore, experiment and solve everyday
+        challenges. GyaanQuest turns village life into an exciting adventure.
+      </p>
+      <div className="gq-grid" style={{ margin: "28px 0" }}>
+        <div className="gq-card">
+          <div className="gq-icon">🌾</div>
+          <h3>Explore</h3>
+          <p>Discover challenges inspired by everyday village life.</p>
+        </div>
+        <div className="gq-card">
+          <div className="gq-icon">🧠</div>
+          <h3>Think</h3>
+          <p>Make decisions and solve practical problems.</p>
+        </div>
+        <div className="gq-card">
+          <div className="gq-icon">🏆</div>
+          <h3>Achieve</h3>
+          <p>Earn rewards as you complete your missions.</p>
+        </div>
+      </div>
+      <button className="gq-btn" onClick={onStart}>Start Your Adventure →</button>
+    </section>
+  );
+}
+
+// ==================== PLAYER SETUP ====================
+
+function SetupPage({
+  studentName, setStudentName, grade, setGrade, mode, setMode,
+  teamMembers, setTeamMembers, onContinue,
+}) {
+  const canContinue = studentName.trim().length > 0;
+
+  return (
+    <section className="gq-panel">
+      <div className="gq-kicker">PLAYER SETUP</div>
+      <h1 className="gq-title">Let's get you ready!</h1>
+      <p className="gq-subtitle" style={{ marginLeft: 0 }}>
+        Tell us a little about your learning adventure.
+      </p>
+
+      <label className="gq-label">Your name</label>
+      <input
+        className="gq-input"
+        value={studentName}
+        onChange={(e) => setStudentName(e.target.value)}
+        placeholder="Enter your name"
+        maxLength={30}
+      />
+
+      <label className="gq-label">Select your class</label>
+      <select className="gq-select" value={grade} onChange={(e) => setGrade(e.target.value)}>
+        {[7, 8, 9, 10].map((g) => <option key={g} value={g}>Class {g}</option>)}
+      </select>
+
+      <label className="gq-label">Choose how you want to play</label>
+      <div className="gq-grid">
+        <div
+          className={`gq-card ${mode === "individual" ? "selected" : ""}`}
+          onClick={() => setMode("individual")}
+          style={{ cursor: "pointer", border: mode === "individual" ? "2px solid #b85f88" : undefined }}
+        >
+          <div className="gq-icon">🧑‍🎓</div>
+          <h3>Individual Play</h3>
+          <p>Play on your own and complete each mission.</p>
+        </div>
+        <div
+          className="gq-card"
+          onClick={() => setMode("team")}
+          style={{ cursor: "pointer", border: mode === "team" ? "2px solid #b85f88" : undefined }}
+        >
+          <div className="gq-icon">👩‍👩‍👧</div>
+          <h3>Team Play</h3>
+          <p>Work together with friends on one shared device.</p>
+        </div>
+      </div>
+
+      {mode === "team" && (
+        <>
+          <label className="gq-label">Number of team members</label>
+          <select
+            className="gq-select"
+            value={teamMembers}
+            onChange={(e) => setTeamMembers(Number(e.target.value))}
+          >
+            {[3, 4, 5].map((n) => <option key={n} value={n}>{n} students</option>)}
+          </select>
+        </>
+      )}
+
+      <div style={{ textAlign: "center", marginTop: 25 }}>
+        <button className="gq-btn" disabled={!canContinue} onClick={onContinue}>
+          Enter Mission Village →
+        </button>
+      </div>
+    </section>
+  );
+}
+
+// ==================== DASHBOARD ====================
+
+function Dashboard({
+  name, grade, mode, teamMembers, coins, stars, completed, onOpen, onChangeProfile,
+}) {
+  return (
+    <>
+      <section className="gq-panel">
+        <div className="gq-kicker">YOUR LEARNING DASHBOARD</div>
+        <h1 className="gq-title" style={{ fontSize: 32 }}>Hello, {name || "Explorer"}! 👋</h1>
+        <p className="gq-subtitle" style={{ marginLeft: 0 }}>
+          Welcome to your village adventure. Choose a mission and get started!
+        </p>
+        <div className="gq-stats">
+          <div className="gq-stat"><strong>Class {grade}</strong><span>Your class</span></div>
+          <div className="gq-stat"><strong>{stars} ⭐</strong><span>Missions completed</span></div>
+          <div className="gq-stat"><strong>{coins} 🪙</strong><span>Village coins</span></div>
+          <div className="gq-stat">
+            <strong>{mode === "team" ? "Team" : "Solo"}</strong>
+            <span>{mode === "team" ? `${teamMembers} students` : "Individual play"}</span>
+          </div>
+        </div>
+        <button className="gq-btn secondary" onClick={onChangeProfile}>Edit Player Setup</button>
+      </section>
+
+      <section className="gq-panel">
+        <div className="gq-kicker">LEARNING ADVENTURES</div>
+        <h2 style={{ color: "#71445d" }}>Choose Your Mission</h2>
+        <p className="gq-small">Complete all three village missions to collect your rewards.</p>
+        <div className="gq-grid">
+          {missions.map((mission) => (
+            <div className="gq-card" key={mission.id}>
+              <div className="gq-icon">{mission.icon}</div>
+              <h3>{mission.name}</h3>
+              <p>{mission.description}</p>
+              <p className="gq-small">{mission.subject}</p>
+              {completed.includes(mission.id) && <div className="gq-notice">✓ Mission completed!</div>}
+              <button className="gq-btn" onClick={() => onOpen(mission)}>
+                {completed.includes(mission.id) ? "Play Again" : "Explore Mission →"}
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="gq-panel">
+        <h2 style={{ color: "#71445d" }}>What will you explore?</h2>
+        <div className="gq-grid">
+          <div className="gq-card"><strong>🔢 Maths</strong><p>Numbers, calculations, measurement and money.</p></div>
+          <div className="gq-card"><strong>🔬 Science</strong><p>Plants, water, natural resources and the environment.</p></div>
+          <div className="gq-card"><strong>🤝 Life Skills</strong><p>Decision-making, teamwork and everyday problem-solving.</p></div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+// ==================== MISSION INTRO ====================
+
+function MissionIntro({ mission, onStart, onBack }) {
+  const descriptions = {
+    farm: "Your village farm needs a helping hand! Prepare the land, grow crops and make sure every plant gets the care it needs.",
+    water: "Your village is facing a water shortage. Find ways to stop wastage, collect rainwater and make sure every household gets water.",
+    bus: "The village bus is ready for its journey. Help passengers travel safely and manage the bus stand efficiently.",
+  };
+
+  return (
+    <section className="gq-panel gq-center">
+      <div className="gq-icon" style={{ fontSize: 65 }}>{mission.icon}</div>
+      <div className="gq-kicker">MISSION BRIEFING</div>
+      <h1 className="gq-title">{mission.name}</h1>
+      <p className="gq-subtitle">{descriptions[mission.id]}</p>
+      <div className="gq-question">
+        <strong>Your challenge:</strong>
+        <p>Explore the situation, make smart decisions and complete the mission to earn 100 village coins!</p>
+      </div>
+      <button className="gq-btn" onClick={onStart}>Start Mission →</button>
+      <button className="gq-btn secondary" onClick={onBack}>Back to Dashboard</button>
+    </section>
+  );
+}
+
+// ==================== SMART FARMING ====================
+
+function FarmingGame({ settings, onFinish, onBack }) {
+  const [plots, setPlots] = useState([0, 0, 0, 0, 0, 0]);
+  const [water, setWater] = useState(settings.farmWater);
+  const [message, setMessage] = useState("Tap an empty field to plant a crop.");
+  const [harvested, setHarvested] = useState(0);
+
+  function updatePlot(index) {
+    const current = plots[index];
+    const next = [...plots];
+
+    if (current === 0) {
+      next[index] = 1;
+      setMessage("🌱 Seeds planted! Give your crop some water.");
+    } else if (current === 1) {
+      if (water <= 0) {
+        setMessage("You are out of water! Manage your water supply carefully.");
+        return;
+      }
+      next[index] = 2;
+      setWater((old) => old - 1);
+      setMessage("💦 Your crop has been watered!");
+    } else if (current === 2) {
+      next[index] = 3;
+      setHarvested((old) => old + 1);
+      setMessage("🌾 Great harvest! You collected one crop.");
+    } else {
+      setMessage("This plot has already been harvested.");
+      return;
+    }
+
+    setPlots(next);
+  }
+
+  const target = settings.farmTarget;
+  const won = harvested >= target;
+
+  return (
+    <section className="gq-panel">
+      <div className="gq-kicker">🌾 SMART FARMING</div>
+      <h1 className="gq-title" style={{ fontSize: 32 }}>Run Your Village Farm</h1>
+      <p className="gq-subtitle" style={{ marginLeft: 0 }}>
+        Plant seeds, water your crops and harvest your farm.
+      </p>
+
+      <div className="gq-stats">
+        <div className="gq-stat"><strong>{harvested}/{target}</strong><span>Crops harvested</span></div>
+        <div className="gq-stat"><strong>{water} 💧</strong><span>Water units left</span></div>
+      </div>
+
+      <div className="gq-progress"><div style={{ width: `${Math.min(100, harvested / target * 100)}%` }} /></div>
+
+      <div className="gq-question">
+        <strong>🌻 Your Farming Situation</strong>
+        <p>You need to harvest {target} crops. Each plot needs to be planted and watered before harvesting.</p>
+        <strong>Tap each field to complete its stages.</strong>
+      </div>
+
+      <div className="gq-grid">
+        {plots.map((stage, index) => (
+          <button className="gq-plot" key={index} onClick={() => updatePlot(index)} disabled={won}>
+            <span style={{ fontSize: 30 }}>{["🟫", "🌱", "🌿", "🌾"][stage]}</span>
+            <strong>Field {index + 1}</strong>
+            <span className="gq-small">{["Empty field", "Seeds planted", "Growing crop", "Harvested"][stage]}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="gq-notice">{message}</div>
+
+      {won ? (
+        <div className="gq-center">
+          <h2>🎉 Your farm is successful!</h2>
+          <p>You harvested {harvested} crops. Well done, farmer!</p>
+          <button className="gq-btn green" onClick={onFinish}>Collect 100 Coins</button>
+        </div>
+      ) : (
+        <button className="gq-btn secondary" onClick={onBack}>Exit Mission</button>
+      )}
+    </section>
+  );
+}
+
+// ==================== SAVE EVERY DROP ====================
+
+function WaterGame({ settings, onFinish, onBack }) {
+  const [leakFixed, setLeakFixed] = useState(false);
+  const [rainCollected, setRainCollected] = useState(false);
+  const [allocation, setAllocation] = useState([0, 0, 0]);
+  const [message, setMessage] = useState("Start by repairing the leaking village pipe.");
+
+  const total = settings.waterTarget;
+  const allocated = allocation.reduce((sum, value) => sum + value, 0);
+  const targetEach = total / 3;
+  const complete = leakFixed && rainCollected && allocation.every((v) => v >= targetEach);
+
+  function changeAllocation(index, value) {
+    const next = [...allocation];
+    const amount = Math.max(0, Number(value));
+    const otherTotal = allocation.reduce((sum, v, i) => i === index ? sum : sum + v, 0);
+    next[index] = Math.min(amount, total - otherTotal);
+    setAllocation(next);
+  }
+
+  return (
+    <section className="gq-panel">
+      <div className="gq-kicker">💧 SAVE EVERY DROP</div>
+      <h1 className="gq-title" style={{ fontSize: 32 }}>Help Your Village Save Water</h1>
+      <p className="gq-subtitle" style={{ marginLeft: 0 }}>
+        Complete the tasks to make sure the village has enough water.
+      </p>
+
+      <div className="gq-stats">
+        <div className="gq-stat"><strong>{total} L</strong><span>Village water target</span></div>
+        <div className="gq-stat"><strong>{allocated} L</strong><span>Water allocated</span></div>
+      </div>
+
+      <div className="gq-card">
+        <h3>1. Repair the leaking pipe 🔧</h3>
+        <p>A village pipe is wasting water. Stop the leak before it gets worse.</p>
+        <button className="gq-btn blue" disabled={leakFixed} onClick={() => {
+          setLeakFixed(true);
+          setMessage("Great! The pipe has been repaired.");
+        }}>
+          {leakFixed ? "✓ Pipe Repaired" : "Repair Pipe"}
+        </button>
+      </div>
+
+      <div className="gq-card" style={{ marginTop: 14 }}>
+        <h3>2. Collect rainwater 🌧️</h3>
+        <p>Set up a rainwater collection system for the village.</p>
+        <button className="gq-btn blue" disabled={rainCollected || !leakFixed} onClick={() => {
+          setRainCollected(true);
+          setMessage("Wonderful! Rainwater collection is ready.");
+        }}>
+          {rainCollected ? "✓ Rainwater Collected" : "Set Up Collection"}
+        </button>
+        {!leakFixed && <p className="gq-small">Repair the pipe first.</p>}
+      </div>
+
+      <div className="gq-card" style={{ marginTop: 14 }}>
+        <h3>3. Share water fairly 🏘️</h3>
+        <p>Divide {total} litres equally between three village areas. Each area needs at least {targetEach} litres.</p>
+        {["Homes", "School", "Farm"].map((area, index) => (
+          <div key={area} style={{ margin: "12px 0" }}>
+            <label className="gq-label">{area}: {allocation[index]} litres</label>
+            <input
+              className="gq-input"
+              type="number"
+              min="0"
+              max={total}
+              value={allocation[index]}
+              onChange={(e) => changeAllocation(index, e.target.value)}
+            />
+          </div>
+        ))}
+        <p className="gq-small">Total allocated: {allocated} / {total} litres</p>
+      </div>
+
+      <div className="gq-notice">{message}</div>
+
+      {complete ? (
+        <div className="gq-center">
+          <h2>🎉 Your village is water-wise!</h2>
+          <p>You repaired the leak, collected rainwater and shared water fairly.</p>
+          <button className="gq-btn green" onClick={onFinish}>Collect 100 Coins</button>
+        </div>
+      ) : (
+        <>
+          <p className="gq-small">Complete all three tasks to finish this mission.</p>
+          <button className="gq-btn secondary" onClick={onBack}>Exit Mission</button>
+        </>
+      )}
+    </section>
+  );
+}
+
+// ==================== VILLAGE BUS STAND ====================
+
+function BusGame({ settings, onFinish, onBack }) {
+  const [route, setRoute] = useState("");
+  const [passengers, setPassengers] = useState(0);
+  const [adultTickets, setAdultTickets] = useState(0);
+  const [studentTickets, setStudentTickets] = useState(0);
+  const [message, setMessage] = useState("Choose a route to begin your journey.");
+
+  const capacity = settings.busCapacity;
+  const totalTickets = adultTickets + studentTickets;
+  const revenue = adultTickets * settings.fare + studentTickets * (settings.fare / 2);
+  const completed = route !== "" && passengers > 0 && totalTickets === passengers;
+
+  function boardPassenger() {
+    if (passengers >= capacity) {
+      setMessage("The bus is full! You cannot board more passengers.");
+      return;
+    }
+    setPassengers((old) => old + 1);
+    setMessage("A passenger has boarded. Remember to issue a ticket!");
+  }
+
+  function issueTicket(type) {
+    if (totalTickets >= passengers) {
+      setMessage("Board a passenger before issuing another ticket.");
+      return;
+    }
+    if (type === "adult") setAdultTickets((old) => old + 1);
+    else setStudentTickets((old) => old + 1);
+    setMessage("Ticket issued successfully!");
+  }
+
+  return (
+    <section className="gq-panel">
+      <div className="gq-kicker">🚌 VILLAGE BUS STAND</div>
+      <h1 className="gq-title" style={{ fontSize: 32 }}>Manage Your Village Bus</h1>
+      <p className="gq-subtitle" style={{ marginLeft: 0 }}>
+        Choose a route, board passengers and manage their tickets.
+      </p>
+
+      <div className="gq-stats">
+        <div className="gq-stat"><strong>{passengers}/{capacity}</strong><span>Passengers</span></div>
+        <div className="gq-stat"><strong>{totalTickets}</strong><span>Tickets issued</span></div>
+        <div className="gq-stat"><strong>₹{revenue}</strong><span>Fare collected</span></div>
+      </div>
+
+      <div className="gq-card">
+        <h3>1. Choose your bus route</h3>
+        {["Village to School", "Village to Market", "Village to Hospital"].map((item) => (
+          <div
+            key={item}
+            className={`gq-option ${route === item ? "selected" : ""}`}
+            onClick={() => {
+              setRoute(item);
+              setMessage(`Route selected: ${item}`);
+            }}
+          >
+            {route === item ? "🔘" : "⚪"} {item}
+          </div>
+        ))}
+      </div>
+
+      <div className="gq-card" style={{ marginTop: 14 }}>
+        <h3>2. Board passengers</h3>
+        <p>Make sure the bus does not exceed its capacity.</p>
+        <button className="gq-btn orange" disabled={!route || passengers >= capacity} onClick={boardPassenger}>
+          + Board Passenger
+        </button>
+      </div>
+
+      <div className="gq-card" style={{ marginTop: 14 }}>
+        <h3>3. Issue passenger tickets</h3>
+        <p>Adult fare: ₹{settings.fare} | Student fare: ₹{settings.fare / 2}</p>
+        <button className="gq-btn orange" disabled={totalTickets >= passengers} onClick={() => issueTicket("adult")}>
+          Adult Ticket
+        </button>
+        <button className="gq-btn orange" disabled={totalTickets >= passengers} onClick={() => issueTicket("student")}>
+          Student Ticket
+        </button>
+        <p className="gq-small">Adult tickets: {adultTickets} | Student tickets: {studentTickets}</p>
+      </div>
+
+      <div className="gq-notice">{message}</div>
+
+      {completed ? (
+        <div className="gq-center">
+          <h2>🎉 Bus ready for departure!</h2>
+          <p>Route: {route}</p>
+          <p>Passengers: {passengers} | Tickets: {totalTickets} | Revenue: ₹{revenue}</p>
+          <button className="gq-btn green" onClick={onFinish}>Start Trip & Collect 100 Coins</button>
+        </div>
+      ) : (
+        <>
+          <p className="gq-small">Choose a route, board at least one passenger and issue a ticket to each passenger.</p>
+          <button className="gq-btn secondary" onClick={onBack}>Exit Mission</button>
+        </>
+      )}
+    </section>
+  );
+}
