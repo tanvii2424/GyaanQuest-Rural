@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import "./App.css";
 
@@ -509,14 +508,16 @@ function App() {
             </div>
           </section>
 
-          <section style={{
-            maxWidth: "950px",
-            margin: "35px auto",
-            padding: "25px",
-            textAlign: "center",
-            background: "#f5f8ef",
-            borderRadius: "18px"
-          }}>
+          <section
+            style={{
+              maxWidth: "950px",
+              margin: "35px auto",
+              padding: "25px",
+              textAlign: "center",
+              background: "#f5f8ef",
+              borderRadius: "18px",
+            }}
+          >
             <h2>Why GyaanQuest?</h2>
 
             <p style={{ lineHeight: "1.8", color: "#536052" }}>
@@ -525,12 +526,14 @@ function App() {
               communities.
             </p>
 
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-              gap: "18px",
-              marginTop: "25px"
-            }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                gap: "18px",
+                marginTop: "25px",
+              }}
+            >
               <div>
                 <span style={{ fontSize: "2.5rem" }}>🎮</span>
                 <h3>Learn Through Games</h3>
@@ -555,111 +558,20 @@ function App() {
 
       {/* LOGIN / PLAYER SETUP PAGE */}
 
-      
-{screen === "login" && (
-  <main className="home">
-    <section className="setup-card">
-      <div style={{ textAlign: "center" }}>
-        <div style={{ fontSize: "3.5rem", marginBottom: "12px" }}>
-          🎮
-        </div>
-
-        <span className="eyebrow">YOUR ADVENTURE STARTS HERE</span>
-
-        <h2 style={{ marginTop: "12px" }}>Player Login</h2>
-
-        <p className="section-subtitle">
-          Tell us a little about yourself before entering GyaanQuest!
-        </p>
-      </div>
-
-      <label>Student Name / Team Name</label>
-
-      <input
-        value={studentName}
-        onChange={(e) => setStudentName(e.target.value)}
-        placeholder="Enter your name or team name"
-      />
-
-      <label>Select Your Class</label>
-
-      <div className="class-options">
-        {["7", "8", "9", "10"].map((grade) => (
-          <button
-            key={grade}
-            className={
-              selectedClass === grade ? "class-btn active" : "class-btn"
-            }
-            onClick={() => setSelectedClass(grade)}
-          >
-            Class {grade}
-          </button>
-        ))}
-      </div>
-
-      <label>Choose Your Playing Mode</label>
-
-      <div className="mode-options">
-        <button
-          className={
-            playMode === "Individual" ? "mode-btn selected" : "mode-btn"
-          }
-          onClick={() => setPlayMode("Individual")}
-        >
-          <span>👤</span>
-          <strong>Individual Mode</strong>
-          <small>Play on your own</small>
-        </button>
-
-        <button
-          className={
-            playMode === "Team" ? "mode-btn selected" : "mode-btn"
-          }
-          onClick={() => setPlayMode("Team")}
-        >
-          <span>👥</span>
-          <strong>Team Mode</strong>
-          <small>Play with 3–5 friends</small>
-        </button>
-      </div>
-
-      <button
-        className="start-btn"
-        onClick={() => {
-          if (!studentName.trim()) {
-            alert("Please enter your name or team name!");
-            return;
-          }
-          setScreen("dashboard");
-        }}
-      >
-        Enter GyaanQuest →
-      </button>
-
-      <div style={{ textAlign: "center" }}>
-        <button
-          className="back-btn"
-          onClick={() => setScreen("welcome")}
-        >
-          ← Back to Welcome
-        </button>
-      </div>
-    </section>
-  </main>
-)}
-
-            <div style={{ textAlign: "center", marginBottom: "28px" }}>
-              <div style={{ fontSize: "3.5rem" }}>🎮</div>
+      {screen === "login" && (
+        <main className="home">
+          <section className="setup-card">
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: "3.5rem", marginBottom: "12px" }}>
+                🎮
+              </div>
 
               <span className="eyebrow">YOUR ADVENTURE STARTS HERE</span>
 
-              <h1 style={{ margin: "12px 0" }}>
-                Player Login
-              </h1>
+              <h2 style={{ marginTop: "12px" }}>Player Login</h2>
 
-              <p style={{ color: "#647067", lineHeight: "1.6" }}>
-                Tell us a little about yourself before entering
-                GyaanQuest!
+              <p className="section-subtitle">
+                Tell us a little about yourself before entering GyaanQuest!
               </p>
             </div>
 
@@ -678,9 +590,7 @@ function App() {
                 <button
                   key={grade}
                   className={
-                    selectedClass === grade
-                      ? "class-btn active"
-                      : "class-btn"
+                    selectedClass === grade ? "class-btn active" : "class-btn"
                   }
                   onClick={() => setSelectedClass(grade)}
                 >
@@ -694,9 +604,7 @@ function App() {
             <div className="mode-options">
               <button
                 className={
-                  playMode === "Individual"
-                    ? "mode-btn selected"
-                    : "mode-btn"
+                  playMode === "Individual" ? "mode-btn selected" : "mode-btn"
                 }
                 onClick={() => setPlayMode("Individual")}
               >
@@ -707,9 +615,7 @@ function App() {
 
               <button
                 className={
-                  playMode === "Team"
-                    ? "mode-btn selected"
-                    : "mode-btn"
+                  playMode === "Team" ? "mode-btn selected" : "mode-btn"
                 }
                 onClick={() => setPlayMode("Team")}
               >
@@ -721,7 +627,6 @@ function App() {
 
             <button
               className="start-btn"
-              style={{ width: "100%", marginTop: "25px" }}
               onClick={() => {
                 if (!studentName.trim()) {
                   alert("Please enter your name or team name!");
@@ -734,14 +639,17 @@ function App() {
               Enter GyaanQuest →
             </button>
 
-            <button
-              className="back-btn"
-              style={{ display: "block", margin: "18px auto 0" }}
-              onClick={() => setScreen("home")}
-            >
-              ← Back to Welcome
-            </button>
-        
+            <div style={{ textAlign: "center" }}>
+              <button
+                className="back-btn"
+                onClick={() => setScreen("welcome")}
+              >
+                ← Back to Welcome
+              </button>
+            </div>
+          </section>
+        </main>
+      )}
 
       {/* LEARNING DASHBOARD */}
 
@@ -1285,7 +1193,14 @@ function App() {
           {/* SMART FARMING */}
 
           {selectedMission.id === 2 && (
-            <main className="farm-page" style={{ maxWidth: "1100px", margin: "auto", padding: "25px 20px 50px" }}>
+            <main
+              className="farm-page"
+              style={{
+                maxWidth: "1100px",
+                margin: "auto",
+                padding: "25px 20px 50px",
+              }}
+            >
               <button className="back-btn" onClick={returnToVillage}>
                 ← Back to Village
               </button>
