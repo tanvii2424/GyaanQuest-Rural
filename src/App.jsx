@@ -12,6 +12,35 @@ const missions = [
   { id: 5, name: "Village Bus Stand", icon: "🚌", subject: "Maths + Life Skills", description: "Calculate distances, travel time and ticket costs." },
 ];
 
+// ==================== LEARNING DASHBOARD ====================
+
+const learningAreas = [
+  {
+    icon: "🔢",
+    title: "Everyday Mathematics",
+    description: "Use numbers to solve everyday problems.",
+    topics: ["Addition and subtraction", "Multiplication and division", "Fractions", "Percentages", "Ratios"],
+    missions: "Village Market · Smart Farming",
+    color: "#fff2dc",
+  },
+  {
+    icon: "🌱",
+    title: "Sustainable Living",
+    description: "Make smart decisions about natural resources.",
+    topics: ["Water conservation", "Plant and crop growth", "Resource management", "Measurement and area"],
+    missions: "Smart Farming · Save Every Drop",
+    color: "#e8f5e8",
+  },
+  {
+    icon: "🏡",
+    title: "Real-World Problem Solving",
+    description: "Apply practical thinking to village life.",
+    topics: ["Money management", "Budget planning", "Distance and travel time", "Shapes and measurements", "Decision-making"],
+    missions: "Build Your Village · Village Bus Stand",
+    color: "#eaf2ff",
+  },
+];
+
 // ==================== VILLAGE MARKET DATA ====================
 
 const vegetables = [
@@ -97,7 +126,6 @@ const farmingChallenges = {
       topic: "Multiplication",
     },
   ],
-
   8: [
     {
       title: "Measure the Farm",
@@ -130,7 +158,6 @@ const farmingChallenges = {
       topic: "Unit calculations",
     },
   ],
-
   9: [
     {
       title: "Calculate Fertilizer",
@@ -163,7 +190,6 @@ const farmingChallenges = {
       topic: "Ratios",
     },
   ],
-
   10: [
     {
       title: "Calculate the Profit",
@@ -445,17 +471,19 @@ function App() {
         <div className="offline-tag">● Offline Friendly</div>
       </header>
 
-      {/* HOME PAGE */}
+      {/* HOME / WELCOME PAGE */}
 
       {screen === "home" && (
         <main className="home">
           <section className="welcome">
             <div>
               <span className="eyebrow">YOUR ADVENTURE BEGINS</span>
-              <h1>Welcome to <span>Mission Village!</span> 🏡</h1>
+              <h1>Welcome to <span>GyaanQuest!</span> 🏡</h1>
               <p>
-                Turn everyday village life into an exciting learning
-                adventure. Explore, play games and earn rewards!
+                Many students find it difficult to connect classroom
+                learning with everyday life. GyaanQuest makes learning
+                accessible and engaging through interactive village
+                adventures, practical challenges and games.
               </p>
             </div>
 
@@ -527,11 +555,124 @@ function App() {
 
             <button
               className="start-btn"
-              onClick={() => setScreen("village")}
+              onClick={() => setScreen("dashboard")}
             >
-              Enter Mission Village →
+              Continue to Learning Dashboard →
             </button>
           </section>
+        </main>
+      )}
+
+      {/* LEARNING DASHBOARD */}
+
+      {screen === "dashboard" && (
+        <main
+          style={{
+            maxWidth: "1100px",
+            margin: "auto",
+            padding: "35px 20px 55px",
+          }}
+        >
+          <div style={{ textAlign: "center", marginBottom: "30px" }}>
+            <span className="eyebrow">YOUR LEARNING JOURNEY</span>
+
+            <h1 style={{ margin: "12px 0", fontSize: "2.3rem" }}>
+              Discover What You Can Explore! 📚
+            </h1>
+
+            <p style={{ color: "#647067", lineHeight: "1.7" }}>
+              Welcome{studentName.trim() ? `, ${studentName}` : ""}!
+              Here's a look at the skills and ideas waiting for you
+              inside Mission Village.
+            </p>
+
+            <p style={{ fontWeight: "bold", marginTop: "10px" }}>
+              Class {selectedClass} · {playMode} Mode
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+              gap: "20px",
+            }}
+          >
+            {learningAreas.map((area) => (
+              <section
+                key={area.title}
+                style={{
+                  background: area.color,
+                  padding: "24px",
+                  borderRadius: "18px",
+                  border: "1px solid rgba(0,0,0,0.06)",
+                }}
+              >
+                <div style={{ fontSize: "2.7rem" }}>{area.icon}</div>
+
+                <h2 style={{ fontSize: "1.25rem", margin: "12px 0 8px" }}>
+                  {area.title}
+                </h2>
+
+                <p style={{ lineHeight: "1.6", color: "#536052" }}>
+                  {area.description}
+                </p>
+
+                <h3 style={{ fontSize: "1rem", marginTop: "20px" }}>
+                  What you'll explore
+                </h3>
+
+                <ul style={{ paddingLeft: "20px", lineHeight: "1.9" }}>
+                  {area.topics.map((topic) => (
+                    <li key={topic}>{topic}</li>
+                  ))}
+                </ul>
+
+                <div
+                  style={{
+                    marginTop: "18px",
+                    padding: "12px",
+                    background: "rgba(255,255,255,0.7)",
+                    borderRadius: "10px",
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  <strong>Explore through:</strong>
+                  <p style={{ marginTop: "5px" }}>{area.missions}</p>
+                </div>
+              </section>
+            ))}
+          </div>
+
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: "35px",
+              padding: "25px",
+              background: "#f5f8ef",
+              borderRadius: "18px",
+            }}
+          >
+            <h2>Ready to put your skills into action? 🚀</h2>
+
+            <p style={{ margin: "10px 0 20px", color: "#59665a" }}>
+              Choose a mission, explore a village location and take on
+              exciting real-world challenges!
+            </p>
+
+            <button
+              className="start-btn"
+              onClick={() => setScreen("village")}
+            >
+              Explore Mission Village →
+            </button>
+
+            <div style={{ marginTop: "15px" }}>
+              <button className="back-btn" onClick={() => setScreen("home")}>
+                ← Back to Welcome
+              </button>
+            </div>
+          </div>
         </main>
       )}
 
@@ -586,8 +727,8 @@ function App() {
             ))}
           </div>
 
-          <button className="back-btn" onClick={() => setScreen("home")}>
-            ← Back to Home
+          <button className="back-btn" onClick={() => setScreen("dashboard")}>
+            ← Back to Learning Dashboard
           </button>
         </main>
       )}
@@ -645,6 +786,13 @@ function App() {
             </div>
           </div>
 
+          <h3>Skills You Used</h3>
+
+          <p style={{ lineHeight: "1.8" }}>
+            Shopping calculations · Money management · Budget planning ·
+            Calculating totals and change
+          </p>
+
           <h3>Your Star Collection</h3>
 
           <div className="reward-progress">
@@ -665,7 +813,6 @@ function App() {
       {/* MISSION SCREEN */}
 
       {screen === "mission" && selectedMission && (
-
         <>
           {/* VILLAGE MARKET */}
 
@@ -946,8 +1093,9 @@ function App() {
                   )}
 
                   <div className="market-tip">
-                    💡 <strong>Learning Tip:</strong> Calculate the total
-                    carefully and return the correct change!
+                    💡 <strong>Challenge Tip:</strong> Pay attention to
+                    the customer's shopping list and make sure the basket
+                    is correct!
                   </div>
                 </aside>
               </div>
@@ -1070,7 +1218,7 @@ function App() {
                           fontWeight: "bold",
                         }}
                       >
-                        {currentFarmChallenge.topic}
+                        Level {farmChallengeIndex + 1} of 3
                       </span>
                     </div>
 
@@ -1215,8 +1363,8 @@ function App() {
                     }}
                   >
                     <p>
-                      💡 Think carefully, calculate correctly and learn
-                      something new with every challenge!
+                      💡 Think carefully, make smart decisions and complete
+                      every challenge on your farm!
                     </p>
                   </div>
                 </>
@@ -1284,6 +1432,30 @@ function App() {
                     <div style={{ fontSize: "2.5rem" }}>🌾</div>
                     <strong>Smart Farmer</strong>
                     <p>Completed all three farming challenges!</p>
+                  </div>
+
+                  <div
+                    style={{
+                      background: "white",
+                      padding: "18px",
+                      borderRadius: "12px",
+                      margin: "15px 0 25px",
+                      textAlign: "left",
+                    }}
+                  >
+                    <h3 style={{ marginBottom: "12px", textAlign: "center" }}>
+                      📚 What You Explored
+                    </h3>
+
+                    <ul style={{ paddingLeft: "22px", lineHeight: "2" }}>
+                      {[...new Set(classChallenges.map((challenge) => challenge.topic))].map((topic) => (
+                        <li key={topic}>{topic}</li>
+                      ))}
+                    </ul>
+
+                    <p style={{ marginTop: "10px", textAlign: "center" }}>
+                      You used these skills to solve real farming situations!
+                    </p>
                   </div>
 
                   <button
