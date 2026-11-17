@@ -1156,3 +1156,54 @@ footer small {
   color: #666;
   margin: 12px 0;
 }
+
+/* SEPARATE WELCOME AND LOGIN PAGE STYLING */
+
+.home {
+  width: 100%;
+  min-height: 75vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.welcome {
+  width: 100%;
+}
+
+.setup-card {
+  width: 100%;
+  max-width: 650px;
+  margin: 20px auto;
+}
+
+.setup-card .start-btn {
+  width: 100%;
+}
+
+.setup-card .back-btn {
+  margin-top: 18px;
+}
+
+.setup-card input {
+  display: block;
+  font-size: 15px;
+}
+
+@media (max-width: 600px) {
+  .home {
+    padding: 25px 16px;
+  }
+
+  .setup-card {
+    padding: 23px;
+  }
+
+  .class-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mode-options {
+    grid-template-columns: 1fr;
+  }
+}
