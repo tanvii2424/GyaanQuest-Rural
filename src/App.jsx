@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import "./App.css";
 
@@ -34,6 +35,141 @@ const missions = [
     color: "bus",
   },
 ];
+
+// Creates five questions according to the selected mission and class.
+function getQuizQuestions(missionId, grade) {
+  const level = Number(grade);
+  const settings = gradeSettings[grade];
+
+  function question(text, correct, wrong) {
+    const answer = String(correct);
+    const options = [answer, ...wrong.map(String)];
+
+    return {
+      text,
+      answer,
+      options: options.sort((a, b) => {
+        // Keep the answer position varied without randomizing on every render.
+        return (a.length + a.charCodeAt(0)) % 3 -
+          ((b.length + b.charCodeAt(0)) % 3);
+      }),
+    };
+  }
+
+  if (missionId === "farm") {
+    const seedsPerPlot = level + 2;
+    const totalSeeds = settings.farmTarget * seedsPerPlot;
+    const waterPerPlot = settings.farmWater / settings.farmTarget;
+
+    return [
+      question(
+        `Your farm needs ${settings.farmTarget} plots. Each plot needs ${seedsPerPlot} seed packets. How many packets do you need altogether?`,
+        totalSeeds,
+        [totalSeeds + 2, totalSeeds - 1, totalSeeds + 5]
+      ),
+      question(
+        `You have ${settings.farmWater} water units for ${settings.farmTarget} plots. If shared equally, how many units does each plot receive?`,
+        waterPerPlot,
+        [waterPerPlot + 1, waterPerPlot + 2, Math.max(0, waterPerPlot - 1)]
+      ),
+      question(
+        "Which sequence shows the correct stages of growing a crop?",
+        "Seed → Seedling → Plant → Harvest",
+        [
+          "Harvest → Seed → Plant → Seedling",
+          "Plant → Harvest → Seed → Seedling",
+          "Seedling → Harvest → Seed → Plant",
+        ]
+      ),
+      question(
+        `Your farm has 6 plots. You have planted ${settings.farmTarget} plots. How many plots are still unplanted?`,
+        6 - settings.farmTarget,
+        [settings.farmTarget, 6, 6 - settings.farmTarget + 1]
+      ),
+      question(
+        `If you harvest ${settings.farmTarget} plots and each gives ${level + 1} baskets of crops, how many baskets do you collect?`,
+        settings.farmTarget * (level + 1),
+        [
+          settings.farmTarget + level + 1,
+          settings.farmTarget * level,
+          settings.farmTarget * (level + 2),
+        ]
+      ),
+    ];
+  }
+
+  if (missionId === "water") {
+    const each = settings.waterTarget / 3;
+    const dailyWaste = (level + 1) * 10;
+    const threeDayWaste = dailyWaste * 3;
+
+    return [
+      question(
+        `Your village has ${settings.waterTarget} litres of water. It must be shared equally among 3 places. How much does each receive?`,
+        each,
+        [each + 50, each - 50, each * 2]
+      ),
+      question(
+        `Homes, school and farm each receive ${each} litres. What is the total amount distributed?`,
+        settings.waterTarget,
+        [settings.waterTarget - 100, settings.waterTarget + 100, each * 2]
+      ),
+      question(
+        `A leaking pipe wastes ${dailyWaste} litres every day. How much water is wasted in 3 days?`,
+        threeDayWaste,
+        [dailyWaste * 2, threeDayWaste + dailyWaste, dailyWaste + 3]
+      ),
+      question(
+        "Which action helps conserve water?",
+        "Repairing leaking pipes",
+        [
+          "Leaving taps running",
+          "Washing vehicles with a running hose",
+          "Throwing clean water away",
+        ]
+      ),
+      question(
+        `The village collects ${settings.waterTarget} litres and distributes ${settings.waterTarget} litres equally. How much water remains?`,
+        0,
+        [50, each, settings.waterTarget / 2]
+      ),
+    ];
+  }
+
+  const capacity = settings.busCapacity;
+  const fare = settings.fare;
+  const studentFare = Math.ceil(fare / 2);
+  const halfCapacity = Math.floor(capacity / 2);
+  const remainingSeats = capacity - halfCapacity;
+
+  return [
+    question(
+      `Your bus has a capacity of ${capacity} passengers. If ${halfCapacity} passengers board, how many seats remain?`,
+      remainingSeats,
+      [halfCapacity, capacity, remainingSeats + 2]
+    ),
+    question(
+      `An adult ticket costs ₹${fare} and a student ticket costs ₹${studentFare}. What is the total for 2 adult tickets and 1 student ticket?`,
+      2 * fare + studentFare,
+      [2 * fare + 2 * studentFare, fare + studentFare, 3 * fare]
+    ),
+    question(
+      `Your bus carries ${halfCapacity} passengers. Each passenger needs one ticket. How many tickets should you issue?`,
+      halfCapacity,
+      [halfCapacity + 1, capacity, halfCapacity - 1]
+    ),
+    question(
+      `You collect ${halfCapacity} adult fares of ₹${fare} each. How much money do you collect?`,
+      halfCapacity * fare,
+      [halfCapacity + fare, capacity * fare, halfCapacity * studentFare]
+    ),
+    question(
+      "Which destination should receive priority during a medical emergency?",
+      "Hospital",
+      ["Market", "Playground", "Shopping centre"]
+    ),
+  ];
+}
 
 function App() {
   const [page, setPage] = useState("welcome");
@@ -90,6 +226,10 @@ function App() {
     setPage("result");
   }
 
+  function finishQuiz(bonus) {
+    setCoins((current) => current + bonus);
+  }
+
   function returnToVillage() {
     setActiveMission(null);
     setLastResult(null);
@@ -115,9 +255,7 @@ function App() {
       </header>
 
       <main className="gq-shell">
-        {page === "welcome" && (
-          <WelcomePage onStart={startSetup} />
-        )}
+        {page === "welcome" && <WelcomePage onStart={startSetup} />}
 
         {page === "setup" && (
           <SetupPage
@@ -223,6 +361,17 @@ function App() {
         {page === "result" && lastResult && (
           <ResultPage
             result={lastResult}
+            onStartQuiz={() => setPage("quiz")}
+            onContinue={returnToVillage}
+          />
+        )}
+
+        {page === "quiz" && activeMission && (
+          <QuizPage
+            mission={activeMission}
+            grade={grade}
+            questions={getQuizQuestions(activeMission.id, grade)}
+            onComplete={finishQuiz}
             onContinue={returnToVillage}
           />
         )}
@@ -501,7 +650,6 @@ function FarmingGame({ settings, onFinish, onBack }) {
 
   const target = settings.farmTarget;
   const planted = plots.filter((plot) => plot >= 1).length;
-  const growing = plots.filter((plot) => plot === 2).length;
 
   function workOnPlot(index) {
     const stage = plots[index];
@@ -597,7 +745,7 @@ function WaterGame({ settings, onFinish, onBack }) {
     setAllocation((current) => {
       const updated = [...current];
       const nextValue = Math.max(0, Math.min(targetEach, updated[index] + amount));
-      const otherTotal = updated.reduce((sum, value, i) => i === index ? sum : sum + value, 0);
+      const otherTotal = updated.reduce((sum, value, i) => i === index ? value : sum + value, 0);
       updated[index] = Math.min(nextValue, total - otherTotal);
       return updated;
     });
@@ -852,7 +1000,7 @@ function BusGame({ settings, onFinish, onBack }) {
   );
 }
 
-function ResultPage({ result, onContinue }) {
+function ResultPage({ result, onStartQuiz, onContinue }) {
   return (
     <section className="result-page">
       <div className="result-confetti">🎉 ✨ 🎊 ✨ 🎉</div>
@@ -889,9 +1037,237 @@ function ResultPage({ result, onContinue }) {
         </ul>
       </div>
 
-      <button className="primary-btn full-btn" onClick={onContinue}>
-        Return to Mission Village →
+      <button className="primary-btn full-btn" onClick={onStartQuiz}>
+        Take Your 5-Question Quiz 🧠 →
       </button>
+      <button
+        className="back-btn"
+        style={{ display: "block", margin: "14px auto 0" }}
+        onClick={onContinue}
+      >
+        Return to Mission Village
+      </button>
+    </section>
+  );
+}
+
+function QuizPage({ mission, grade, questions, onComplete, onContinue }) {
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [selected, setSelected] = useState("");
+  const [checked, setChecked] = useState(false);
+  const [score, setScore] = useState(0);
+  const [finished, setFinished] = useState(false);
+  const [finalScore, setFinalScore] = useState(0);
+
+  const currentQuestion = questions[questionIndex];
+  const bonus = finalScore * 20;
+
+  function checkAnswer() {
+    if (!selected) return;
+
+    const correct = selected === currentQuestion.answer;
+
+    if (correct) {
+      setScore((current) => current + 1);
+    }
+
+    setChecked(true);
+  }
+
+  function nextQuestion() {
+    const correct = selected === currentQuestion.answer;
+    const updatedScore = score;
+
+    // The score state is already updated when the answer is checked.
+    const final = updatedScore;
+
+    if (questionIndex < questions.length - 1) {
+      setQuestionIndex((current) => current + 1);
+      setSelected("");
+      setChecked(false);
+    } else {
+      const totalCorrect = final;
+      setFinalScore(totalCorrect);
+      setFinished(true);
+      onComplete(totalCorrect * 20);
+    }
+  }
+
+  return (
+    <section className="game-page">
+      {!finished ? (
+        <>
+          <button className="back-btn" onClick={onContinue}>← Return to Village</button>
+
+          <div className="game-heading">
+            <span className="eyebrow">MISSION QUIZ</span>
+            <h1>🧠 {mission.name} Quiz</h1>
+            <p>Class {grade} · Test what you learned!</p>
+          </div>
+
+          <div
+            className="task-card"
+            style={{ maxWidth: "720px", margin: "0 auto", padding: "28px" }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
+              <strong>Question {questionIndex + 1} of {questions.length}</strong>
+              <span>⭐ Correct: {score}</span>
+            </div>
+
+            <div
+              style={{
+                height: "9px",
+                background: "#e8eadc",
+                borderRadius: "20px",
+                overflow: "hidden",
+                margin: "16px 0 24px",
+              }}
+            >
+              <div
+                style={{
+                  width: `${((questionIndex + 1) / questions.length) * 100}%`,
+                  height: "100%",
+                  background: "#72945a",
+                  borderRadius: "20px",
+                  transition: "width 0.3s ease",
+                }}
+              />
+            </div>
+
+            <h2 style={{ fontSize: "clamp(19px, 3vw, 25px)", lineHeight: 1.5, marginBottom: "22px" }}>
+              {currentQuestion.text}
+            </h2>
+
+            <div style={{ display: "grid", gap: "12px" }}>
+              {currentQuestion.options.map((option, index) => {
+                const isCorrect = checked && option === currentQuestion.answer;
+                const isWrong = checked && selected === option && option !== currentQuestion.answer;
+
+                return (
+                  <button
+                    key={`${questionIndex}-${index}`}
+                    onClick={() => !checked && setSelected(option)}
+                    disabled={checked}
+                    style={{
+                      width: "100%",
+                      textAlign: "left",
+                      padding: "15px 17px",
+                      borderRadius: "12px",
+                      border: isCorrect
+                        ? "2px solid #4b9255"
+                        : isWrong
+                          ? "2px solid #c65b4d"
+                          : selected === option
+                            ? "2px solid #78985d"
+                            : "1px solid #d9ddcc",
+                      background: isCorrect
+                        ? "#e5f4e5"
+                        : isWrong
+                          ? "#fbe9e5"
+                          : selected === option
+                            ? "#edf2e5"
+                            : "#fff",
+                      color: "#263b2b",
+                      cursor: checked ? "default" : "pointer",
+                      fontSize: "15px",
+                      fontWeight: selected === option ? 700 : 500,
+                    }}
+                  >
+                    <span style={{ marginRight: "10px" }}>
+                      {String.fromCharCode(65 + index)}.
+                    </span>
+                    {option}
+                    {isCorrect && <span style={{ float: "right" }}>✓</span>}
+                    {isWrong && <span style={{ float: "right" }}>✗</span>}
+                  </button>
+                );
+              })}
+            </div>
+
+            {checked && (
+              <div
+                style={{
+                  marginTop: "20px",
+                  padding: "14px",
+                  borderRadius: "10px",
+                  background: selected === currentQuestion.answer ? "#e5f4e5" : "#fbe9e5",
+                  color: "#263b2b",
+                  fontWeight: 600,
+                }}
+              >
+                {selected === currentQuestion.answer
+                  ? "🎉 Correct! You earned 20 bonus coins."
+                  : `Not quite! The correct answer is: ${currentQuestion.answer}`}
+              </div>
+            )}
+
+            <div style={{ marginTop: "24px" }}>
+              {!checked ? (
+                <button
+                  className="primary-btn full-btn"
+                  onClick={checkAnswer}
+                  disabled={!selected}
+                  style={{ opacity: selected ? 1 : 0.55 }}
+                >
+                  Check Answer →
+                </button>
+              ) : (
+                <button className="primary-btn full-btn" onClick={nextQuestion}>
+                  {questionIndex === questions.length - 1 ? "See Quiz Results →" : "Next Question →"}
+                </button>
+              )}
+            </div>
+          </div>
+        </>
+      ) : (
+        <div
+          className="result-page"
+          style={{ maxWidth: "720px", margin: "0 auto" }}
+        >
+          <div className="result-confetti">🎉 ✨ 🎊 ✨ 🎉</div>
+          <div className="result-medal">🧠</div>
+          <span className="eyebrow">QUIZ COMPLETED</span>
+          <h1>Well Done, Adventurer!</h1>
+          <p className="result-message">
+            You completed the {mission.name} quiz!
+          </p>
+
+          <div className="result-stats">
+            <div>
+              <span>⭐</span>
+              <strong>{finalScore}/5</strong>
+              <small>Correct answers</small>
+            </div>
+            <div>
+              <span>🪙</span>
+              <strong>+{bonus}</strong>
+              <small>Bonus coins</small>
+            </div>
+          </div>
+
+          <div className="learning-result-card">
+            <h2>
+              {finalScore === 5
+                ? "Perfect Score! 🌟"
+                : finalScore >= 3
+                  ? "Great Effort! 👏"
+                  : "Keep Learning! 🌱"}
+            </h2>
+            <p>
+              {finalScore === 5
+                ? "Amazing! You answered every question correctly."
+                : "Every question is a chance to learn something new. Keep practising!"}
+            </p>
+            <p style={{ marginTop: "12px" }}>
+              You earned {bonus} bonus coins for your correct answers.
+            </p>
+          </div>
+
+          <button className="primary-btn full-btn" onClick={onContinue}>
+            Return to Mission Village →
+          </button>
+        </div>
+      )}
     </section>
   );
 }

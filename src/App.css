@@ -1714,3 +1714,9 @@ button:disabled {
     font-size: 11px;
   }
 }
+
+/* Quiz disabled button */
+.primary-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
