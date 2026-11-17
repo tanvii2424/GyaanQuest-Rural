@@ -1,8 +1,5 @@
-
 import { useState } from "react";
 import "./App.css";
-
-// ==================== GAME SETTINGS ====================
 
 const gradeSettings = {
   7: { farmTarget: 3, farmWater: 3, waterTarget: 600, busCapacity: 12, fare: 10 },
@@ -17,50 +14,51 @@ const missions = [
     icon: "🌾",
     name: "Smart Farming",
     subject: "Maths + Science",
-    description: "Run your own farm, grow crops and manage your resources.",
-    color: "#e5f3d8",
+    description: "Run your own farm. Plant crops, manage water and collect your harvest.",
+    color: "farm",
   },
   {
     id: "water",
     icon: "💧",
     name: "Save Every Drop",
-    subject: "Maths + Science",
-    description: "Help your village save water and solve real-life water challenges.",
-    color: "#dceffc",
+    subject: "Science + Maths",
+    description: "Help your village save water by fixing leaks and sharing water wisely.",
+    color: "water",
   },
   {
     id: "bus",
     icon: "🚌",
     name: "Village Bus Stand",
     subject: "Maths + Life Skills",
-    description: "Manage passengers, tickets, fares and a village bus journey.",
-    color: "#fce9d8",
+    description: "Manage a busy bus stand, plan routes and help passengers travel safely.",
+    color: "bus",
   },
 ];
 
-// ==================== MAIN APP ====================
-
-export default function App() {
+function App() {
   const [page, setPage] = useState("welcome");
   const [studentName, setStudentName] = useState("");
   const [grade, setGrade] = useState("7");
   const [mode, setMode] = useState("individual");
   const [teamMembers, setTeamMembers] = useState(3);
   const [activeMission, setActiveMission] = useState(null);
-  const [completed, setCompleted] = useState([]);
   const [coins, setCoins] = useState(500);
   const [stars, setStars] = useState(0);
+  const [completed, setCompleted] = useState([]);
+  const [lastResult, setLastResult] = useState(null);
 
   const settings = gradeSettings[grade];
 
-  function finishMission(id, reward) {
-    if (!completed.includes(id)) {
-      setCompleted((old) => [...old, id]);
-      setCoins((old) => old + reward);
-      setStars((old) => old + 1);
+  function startSetup() {
+    setPage("setup");
+  }
+
+  function enterVillage() {
+    if (!studentName.trim()) {
+      alert("Please enter your name to continue!");
+      return;
     }
     setPage("dashboard");
-    setActiveMission(null);
   }
 
   function openMission(mission) {
@@ -68,94 +66,57 @@ export default function App() {
     setPage("intro");
   }
 
+  function finishMission(missionId, score, reward, title, concepts, message) {
+    const alreadyCompleted = completed.includes(missionId);
+
+    if (!alreadyCompleted) {
+      setCoins((current) => current + reward);
+      setStars((current) => current + 1);
+      setCompleted((current) => [...current, missionId]);
+    } else {
+      setCoins((current) => current + Math.floor(reward / 2));
+    }
+
+    setLastResult({
+      missionId,
+      score,
+      reward: alreadyCompleted ? Math.floor(reward / 2) : reward,
+      title,
+      concepts,
+      message,
+      alreadyCompleted,
+    });
+
+    setPage("result");
+  }
+
+  function returnToVillage() {
+    setActiveMission(null);
+    setLastResult(null);
+    setPage("dashboard");
+  }
+
   return (
     <div className="gq-app">
-      <style>{`
-        * { box-sizing: border-box; }
-        .gq-app {
-          min-height: 100vh;
-          padding: 24px 16px 50px;
-          background: linear-gradient(135deg, #fff4f7, #fff9ed);
-          color: #493844;
-          font-family: Arial, sans-serif;
-        }
-        .gq-shell { max-width: 1050px; margin: auto; }
-        .gq-header {
-          display: flex; justify-content: space-between; align-items: center;
-          gap: 12px; flex-wrap: wrap; margin-bottom: 25px;
-        }
-        .gq-logo { font-size: 25px; font-weight: 900; color: #a34c79; }
-        .gq-tagline { font-size: 11px; letter-spacing: 2px; color: #936b80; margin-top: 4px; }
-        .gq-pill {
-          background: white; border: 1px solid #f0d6e2; border-radius: 30px;
-          padding: 10px 15px; font-size: 13px; font-weight: bold;
-        }
-        .gq-panel {
-          background: rgba(255,255,255,.94); border: 1px solid #f1dce5;
-          border-radius: 22px; padding: 28px; margin-bottom: 20px;
-          box-shadow: 0 8px 25px rgba(120,70,95,.07);
-        }
-        .gq-center { text-align: center; }
-        .gq-kicker { color: #b36a8c; font-weight: bold; font-size: 12px; letter-spacing: 2px; }
-        .gq-title { font-size: clamp(27px, 5vw, 43px); line-height: 1.15; margin: 12px 0; color: #71445d; }
-        .gq-subtitle { color: #806d79; line-height: 1.65; max-width: 680px; margin: 10px auto; }
-        .gq-btn {
-          border: 0; border-radius: 12px; padding: 13px 20px; cursor: pointer;
-          background: #b85f88; color: white; font-size: 14px; font-weight: bold;
-          margin: 5px; transition: .2s;
-        }
-        .gq-btn:hover { transform: translateY(-2px); filter: brightness(.97); }
-        .gq-btn.secondary { background: #f7e8ef; color: #884e6b; }
-        .gq-btn.green { background: #65965d; }
-        .gq-btn.blue { background: #4c91b5; }
-        .gq-btn.orange { background: #d58b4d; }
-        .gq-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
-        .gq-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 16px; }
-        .gq-card {
-          border: 1px solid #f0dce5; border-radius: 18px; padding: 20px;
-          background: white; text-align: left;
-        }
-        .gq-card h3 { margin: 8px 0; color: #71445d; }
-        .gq-card p { color: #806d79; font-size: 14px; line-height: 1.5; }
-        .gq-icon { font-size: 38px; }
-        .gq-label { display: block; font-weight: bold; margin: 14px 0 7px; font-size: 13px; }
-        .gq-input, .gq-select {
-          width: 100%; padding: 12px; border: 1px solid #e8cbd9;
-          border-radius: 10px; background: white; color: #493844; font-size: 15px;
-        }
-        .gq-stats { display: grid; grid-template-columns: repeat(auto-fit,minmax(120px,1fr)); gap: 12px; margin: 18px 0; }
-        .gq-stat { background: #fff2f7; border-radius: 14px; padding: 15px; text-align: center; }
-        .gq-stat strong { display: block; font-size: 24px; color: #a34c79; }
-        .gq-stat span { font-size: 12px; color: #806d79; }
-        .gq-progress { height: 10px; background: #f3e4eb; border-radius: 20px; overflow: hidden; margin: 12px 0; }
-        .gq-progress > div { height: 100%; background: #b85f88; transition: width .25s; }
-        .gq-question { background: #fff6e9; border-radius: 15px; padding: 18px; margin: 16px 0; line-height: 1.6; }
-        .gq-option { background: white; border: 1px solid #ead4df; padding: 12px; border-radius: 10px; margin: 7px 0; cursor: pointer; }
-        .gq-option.selected { border: 2px solid #b85f88; background: #fff1f7; }
-        .gq-small { font-size: 12px; color: #8d7884; }
-        .gq-plot {
-          border: 2px solid #c8dfb7; border-radius: 14px; padding: 15px;
-          background: #eff8e9; text-align: center; min-height: 125px;
-        }
-        .gq-plot strong { display: block; margin: 7px 0; }
-        .gq-notice { padding: 12px; border-radius: 10px; background: #f7edf2; margin: 12px 0; }
-        @media(max-width:600px) {
-          .gq-panel { padding: 20px 16px; }
-          .gq-header { align-items: flex-start; }
-        }
-      `}</style>
-
-      <div className="gq-shell">
-        <header className="gq-header">
+      <header className="gq-header">
+        <div className="gq-brand">
+          <div className="gq-brand-icon">🏡</div>
           <div>
-            <div className="gq-logo">🏡 GyaanQuest</div>
-            <div className="gq-tagline">LEARN • PLAY • GROW</div>
+            <h2>GyaanQuest</h2>
+            <p>LEARN • PLAY • GROW</p>
           </div>
-          <div className="gq-pill">● Offline Friendly</div>
-        </header>
+        </div>
+        <div className="gq-header-right">
+          <span className="offline-pill">● Offline Friendly</span>
+          {page !== "welcome" && page !== "setup" && (
+            <span className="coin-pill">🪙 {coins}</span>
+          )}
+        </div>
+      </header>
 
+      <main className="gq-shell">
         {page === "welcome" && (
-          <WelcomePage onStart={() => setPage("setup")} />
+          <WelcomePage onStart={startSetup} />
         )}
 
         {page === "setup" && (
@@ -168,21 +129,20 @@ export default function App() {
             setMode={setMode}
             teamMembers={teamMembers}
             setTeamMembers={setTeamMembers}
-            onContinue={() => setPage("dashboard")}
+            onContinue={enterVillage}
           />
         )}
 
         {page === "dashboard" && (
           <Dashboard
-            name={studentName}
+            studentName={studentName}
             grade={grade}
             mode={mode}
             teamMembers={teamMembers}
             coins={coins}
             stars={stars}
             completed={completed}
-            onOpen={openMission}
-            onChangeProfile={() => setPage("setup")}
+            onOpenMission={openMission}
           />
         )}
 
@@ -190,505 +150,750 @@ export default function App() {
           <MissionIntro
             mission={activeMission}
             onStart={() => setPage("game")}
-            onBack={() => setPage("dashboard")}
+            onBack={returnToVillage}
           />
         )}
 
         {page === "game" && activeMission?.id === "farm" && (
           <FarmingGame
             settings={settings}
-            onFinish={() => finishMission("farm", 100)}
-            onBack={() => setPage("dashboard")}
+            onFinish={(score) =>
+              finishMission(
+                "farm",
+                score,
+                100,
+                "Farm Champion!",
+                [
+                  "Multiplication: calculating seeds and resources",
+                  "Measurement: understanding land and area",
+                  "Plant growth: understanding the stages of a crop",
+                  "Resource management: using water carefully",
+                ],
+                "Your farm is flourishing! You managed your crops and resources successfully."
+              )
+            }
+            onBack={returnToVillage}
           />
         )}
 
         {page === "game" && activeMission?.id === "water" && (
           <WaterGame
             settings={settings}
-            onFinish={() => finishMission("water", 100)}
-            onBack={() => setPage("dashboard")}
+            onFinish={(score) =>
+              finishMission(
+                "water",
+                score,
+                120,
+                "Water Guardian!",
+                [
+                  "Water conservation and responsible usage",
+                  "Division: sharing water equally",
+                  "Addition: calculating total water requirements",
+                  "Problem-solving: identifying and fixing water wastage",
+                ],
+                "You helped the village save water and distribute it fairly!"
+              )
+            }
+            onBack={returnToVillage}
           />
         )}
 
         {page === "game" && activeMission?.id === "bus" && (
           <BusGame
             settings={settings}
-            onFinish={() => finishMission("bus", 100)}
-            onBack={() => setPage("dashboard")}
+            onFinish={(score) =>
+              finishMission(
+                "bus",
+                score,
+                150,
+                "Transport Manager!",
+                [
+                  "Addition: counting passengers and tickets",
+                  "Multiplication: calculating ticket revenue",
+                  "Capacity: understanding passenger limits",
+                  "Decision-making: selecting suitable routes",
+                ],
+                "The bus is ready! You managed the passengers and ticket counter."
+              )
+            }
+            onBack={returnToVillage}
           />
         )}
-      </div>
+
+        {page === "result" && lastResult && (
+          <ResultPage
+            result={lastResult}
+            onContinue={returnToVillage}
+          />
+        )}
+      </main>
+
+      <footer className="gq-footer">
+        <span>🌱 GyaanQuest – Learn • Play • Grow</span>
+        <span>Every challenge makes you smarter!</span>
+      </footer>
     </div>
   );
 }
 
-// ==================== WELCOME PAGE ====================
-
 function WelcomePage({ onStart }) {
   return (
-    <section className="gq-panel gq-center">
-      <div style={{ fontSize: 65 }}>🏡🌻</div>
-      <div className="gq-kicker">YOUR ADVENTURE BEGINS</div>
-      <h1 className="gq-title">Welcome to Mission Village!</h1>
-      <p className="gq-subtitle">
-        Learning should connect with the world around us. Many students
-        learn better when they can explore, experiment and solve everyday
-        challenges. GyaanQuest turns village life into an exciting adventure.
-      </p>
-      <div className="gq-grid" style={{ margin: "28px 0" }}>
-        <div className="gq-card">
-          <div className="gq-icon">🌾</div>
+    <section className="welcome-page">
+      <div className="welcome-art">
+        <div className="sun">☀️</div>
+        <div className="welcome-house">🏡</div>
+        <div className="welcome-field">🌾 🌳 🌻 🌳 🌾</div>
+        <div className="welcome-cloud cloud-one">☁️</div>
+        <div className="welcome-cloud cloud-two">☁️</div>
+      </div>
+
+      <div className="welcome-content">
+        <span className="eyebrow">YOUR ADVENTURE BEGINS</span>
+        <h1>Learning becomes an Adventure!</h1>
+        <p>
+          Welcome to Mission Village, where everyday challenges become
+          exciting learning adventures. Explore your village, solve problems
+          and make a difference!
+        </p>
+        <button className="primary-btn" onClick={onStart}>
+          Enter Mission Village <span>→</span>
+        </button>
+      </div>
+
+      <div className="welcome-features">
+        <div className="feature-card">
+          <span>🧭</span>
           <h3>Explore</h3>
-          <p>Discover challenges inspired by everyday village life.</p>
+          <p>Discover exciting village missions.</p>
         </div>
-        <div className="gq-card">
-          <div className="gq-icon">🧠</div>
+        <div className="feature-card">
+          <span>🧠</span>
           <h3>Think</h3>
-          <p>Make decisions and solve practical problems.</p>
+          <p>Use your knowledge to solve challenges.</p>
         </div>
-        <div className="gq-card">
-          <div className="gq-icon">🏆</div>
+        <div className="feature-card">
+          <span>🏆</span>
           <h3>Achieve</h3>
-          <p>Earn rewards as you complete your missions.</p>
+          <p>Earn rewards as you complete missions.</p>
         </div>
       </div>
-      <button className="gq-btn" onClick={onStart}>Start Your Adventure →</button>
     </section>
   );
 }
 
-// ==================== PLAYER SETUP ====================
-
 function SetupPage({
-  studentName, setStudentName, grade, setGrade, mode, setMode,
-  teamMembers, setTeamMembers, onContinue,
+  studentName,
+  setStudentName,
+  grade,
+  setGrade,
+  mode,
+  setMode,
+  teamMembers,
+  setTeamMembers,
+  onContinue,
 }) {
-  const canContinue = studentName.trim().length > 0;
-
   return (
-    <section className="gq-panel">
-      <div className="gq-kicker">PLAYER SETUP</div>
-      <h1 className="gq-title">Let's get you ready!</h1>
-      <p className="gq-subtitle" style={{ marginLeft: 0 }}>
-        Tell us a little about your learning adventure.
-      </p>
-
-      <label className="gq-label">Your name</label>
-      <input
-        className="gq-input"
-        value={studentName}
-        onChange={(e) => setStudentName(e.target.value)}
-        placeholder="Enter your name"
-        maxLength={30}
-      />
-
-      <label className="gq-label">Select your class</label>
-      <select className="gq-select" value={grade} onChange={(e) => setGrade(e.target.value)}>
-        {[7, 8, 9, 10].map((g) => <option key={g} value={g}>Class {g}</option>)}
-      </select>
-
-      <label className="gq-label">Choose how you want to play</label>
-      <div className="gq-grid">
-        <div
-          className={`gq-card ${mode === "individual" ? "selected" : ""}`}
-          onClick={() => setMode("individual")}
-          style={{ cursor: "pointer", border: mode === "individual" ? "2px solid #b85f88" : undefined }}
-        >
-          <div className="gq-icon">🧑‍🎓</div>
-          <h3>Individual Play</h3>
-          <p>Play on your own and complete each mission.</p>
-        </div>
-        <div
-          className="gq-card"
-          onClick={() => setMode("team")}
-          style={{ cursor: "pointer", border: mode === "team" ? "2px solid #b85f88" : undefined }}
-        >
-          <div className="gq-icon">👩‍👩‍👧</div>
-          <h3>Team Play</h3>
-          <p>Work together with friends on one shared device.</p>
-        </div>
+    <section className="setup-page">
+      <div className="section-heading">
+        <span className="eyebrow">LET'S GET STARTED</span>
+        <h1>Meet Your Adventurer! 🌻</h1>
+        <p>Set up your player before entering the village.</p>
       </div>
 
-      {mode === "team" && (
-        <>
-          <label className="gq-label">Number of team members</label>
-          <select
-            className="gq-select"
-            value={teamMembers}
-            onChange={(e) => setTeamMembers(Number(e.target.value))}
-          >
-            {[3, 4, 5].map((n) => <option key={n} value={n}>{n} students</option>)}
-          </select>
-        </>
-      )}
+      <div className="setup-card">
+        <label>Your name</label>
+        <input
+          value={studentName}
+          onChange={(e) => setStudentName(e.target.value)}
+          placeholder="Enter your name"
+          maxLength={30}
+        />
 
-      <div style={{ textAlign: "center", marginTop: 25 }}>
-        <button className="gq-btn" disabled={!canContinue} onClick={onContinue}>
-          Enter Mission Village →
+        <label>Choose your class</label>
+        <div className="grade-grid">
+          {[7, 8, 9, 10].map((number) => (
+            <button
+              key={number}
+              className={`grade-btn ${grade === String(number) ? "selected" : ""}`}
+              onClick={() => setGrade(String(number))}
+            >
+              Class {number}
+            </button>
+          ))}
+        </div>
+
+        <label>How would you like to play?</label>
+        <div className="mode-grid">
+          <button
+            className={`mode-card ${mode === "individual" ? "selected" : ""}`}
+            onClick={() => setMode("individual")}
+          >
+            <span>🧑‍🎓</span>
+            <strong>Individual Play</strong>
+            <small>Play on your own</small>
+          </button>
+          <button
+            className={`mode-card ${mode === "team" ? "selected" : ""}`}
+            onClick={() => setMode("team")}
+          >
+            <span>👩‍👩‍👧</span>
+            <strong>Team Play</strong>
+            <small>Play together</small>
+          </button>
+        </div>
+
+        {mode === "team" && (
+          <div className="team-setting">
+            <label>Number of team members</label>
+            <select
+              value={teamMembers}
+              onChange={(e) => setTeamMembers(Number(e.target.value))}
+            >
+              {[3, 4, 5].map((number) => (
+                <option key={number} value={number}>
+                  {number} members
+                </option>
+              ))}
+            </select>
+            <p>Share one device and solve the missions together!</p>
+          </div>
+        )}
+
+        <button className="primary-btn full-btn" onClick={onContinue}>
+          Let's Explore! →
         </button>
       </div>
     </section>
   );
 }
 
-// ==================== DASHBOARD ====================
-
 function Dashboard({
-  name, grade, mode, teamMembers, coins, stars, completed, onOpen, onChangeProfile,
+  studentName,
+  grade,
+  mode,
+  teamMembers,
+  coins,
+  stars,
+  completed,
+  onOpenMission,
 }) {
   return (
-    <>
-      <section className="gq-panel">
-        <div className="gq-kicker">YOUR LEARNING DASHBOARD</div>
-        <h1 className="gq-title" style={{ fontSize: 32 }}>Hello, {name || "Explorer"}! 👋</h1>
-        <p className="gq-subtitle" style={{ marginLeft: 0 }}>
-          Welcome to your village adventure. Choose a mission and get started!
-        </p>
-        <div className="gq-stats">
-          <div className="gq-stat"><strong>Class {grade}</strong><span>Your class</span></div>
-          <div className="gq-stat"><strong>{stars} ⭐</strong><span>Missions completed</span></div>
-          <div className="gq-stat"><strong>{coins} 🪙</strong><span>Village coins</span></div>
-          <div className="gq-stat">
-            <strong>{mode === "team" ? "Team" : "Solo"}</strong>
-            <span>{mode === "team" ? `${teamMembers} students` : "Individual play"}</span>
-          </div>
+    <section className="dashboard-page">
+      <div className="dashboard-welcome">
+        <div>
+          <span className="eyebrow">WELCOME TO YOUR VILLAGE</span>
+          <h1>Hello, {studentName}! 👋</h1>
+          <p>
+            Class {grade} · {mode === "team" ? `Team of ${teamMembers}` : "Individual Player"}
+          </p>
         </div>
-        <button className="gq-btn secondary" onClick={onChangeProfile}>Edit Player Setup</button>
-      </section>
+        <div className="dashboard-avatar">🧑‍🌾</div>
+      </div>
 
-      <section className="gq-panel">
-        <div className="gq-kicker">LEARNING ADVENTURES</div>
-        <h2 style={{ color: "#71445d" }}>Choose Your Mission</h2>
-        <p className="gq-small">Complete all three village missions to collect your rewards.</p>
-        <div className="gq-grid">
-          {missions.map((mission) => (
-            <div className="gq-card" key={mission.id}>
-              <div className="gq-icon">{mission.icon}</div>
-              <h3>{mission.name}</h3>
-              <p>{mission.description}</p>
-              <p className="gq-small">{mission.subject}</p>
-              {completed.includes(mission.id) && <div className="gq-notice">✓ Mission completed!</div>}
-              <button className="gq-btn" onClick={() => onOpen(mission)}>
-                {completed.includes(mission.id) ? "Play Again" : "Explore Mission →"}
+      <div className="stats-grid">
+        <div className="stat-card">
+          <span>🪙</span>
+          <div><strong>{coins}</strong><small>Village Coins</small></div>
+        </div>
+        <div className="stat-card">
+          <span>⭐</span>
+          <div><strong>{stars}</strong><small>Stars Earned</small></div>
+        </div>
+        <div className="stat-card">
+          <span>🏅</span>
+          <div><strong>{completed.length}/3</strong><small>Missions Completed</small></div>
+        </div>
+      </div>
+
+      <div className="mission-heading">
+        <div>
+          <span className="eyebrow">YOUR VILLAGE NEEDS YOU</span>
+          <h2>Choose Your Mission</h2>
+          <p>Three adventures. Three ways to make a difference!</p>
+        </div>
+      </div>
+
+      <div className="mission-grid">
+        {missions.map((mission, index) => (
+          <article className={`mission-card ${mission.color}`} key={mission.id}>
+            <div className="mission-number">MISSION 0{index + 1}</div>
+            <div className="mission-icon">{mission.icon}</div>
+            <h3>{mission.name}</h3>
+            <span className="subject-tag">{mission.subject}</span>
+            <p>{mission.description}</p>
+            <div className="mission-bottom">
+              {completed.includes(mission.id) ? (
+                <span className="completed-label">✓ Completed</span>
+              ) : (
+                <span className="new-label">Ready to explore</span>
+              )}
+              <button onClick={() => onOpenMission(mission)}>
+                {completed.includes(mission.id) ? "Play Again ↗" : "Explore Mission →"}
               </button>
             </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="gq-panel">
-        <h2 style={{ color: "#71445d" }}>What will you explore?</h2>
-        <div className="gq-grid">
-          <div className="gq-card"><strong>🔢 Maths</strong><p>Numbers, calculations, measurement and money.</p></div>
-          <div className="gq-card"><strong>🔬 Science</strong><p>Plants, water, natural resources and the environment.</p></div>
-          <div className="gq-card"><strong>🤝 Life Skills</strong><p>Decision-making, teamwork and everyday problem-solving.</p></div>
-        </div>
-      </section>
-    </>
-  );
-}
-
-// ==================== MISSION INTRO ====================
-
-function MissionIntro({ mission, onStart, onBack }) {
-  const descriptions = {
-    farm: "Your village farm needs a helping hand! Prepare the land, grow crops and make sure every plant gets the care it needs.",
-    water: "Your village is facing a water shortage. Find ways to stop wastage, collect rainwater and make sure every household gets water.",
-    bus: "The village bus is ready for its journey. Help passengers travel safely and manage the bus stand efficiently.",
-  };
-
-  return (
-    <section className="gq-panel gq-center">
-      <div className="gq-icon" style={{ fontSize: 65 }}>{mission.icon}</div>
-      <div className="gq-kicker">MISSION BRIEFING</div>
-      <h1 className="gq-title">{mission.name}</h1>
-      <p className="gq-subtitle">{descriptions[mission.id]}</p>
-      <div className="gq-question">
-        <strong>Your challenge:</strong>
-        <p>Explore the situation, make smart decisions and complete the mission to earn 100 village coins!</p>
+          </article>
+        ))}
       </div>
-      <button className="gq-btn" onClick={onStart}>Start Mission →</button>
-      <button className="gq-btn secondary" onClick={onBack}>Back to Dashboard</button>
+
+      <div className="learning-topics">
+        <div className="section-heading left">
+          <span className="eyebrow">LEARNING BEHIND THE ADVENTURE</span>
+          <h2>What Will You Discover?</h2>
+          <p>Every mission connects classroom learning with real village life.</p>
+        </div>
+        <div className="topic-grid">
+          <div className="topic-card">
+            <span>🌾</span>
+            <div>
+              <strong>Smart Farming</strong>
+              <p>Multiplication, measurement, plant growth and resource management.</p>
+            </div>
+          </div>
+          <div className="topic-card">
+            <span>💧</span>
+            <div>
+              <strong>Save Every Drop</strong>
+              <p>Water conservation, addition, division and fair distribution.</p>
+            </div>
+          </div>
+          <div className="topic-card">
+            <span>🚌</span>
+            <div>
+              <strong>Village Bus Stand</strong>
+              <p>Passenger counting, multiplication, money and capacity.</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
 
-// ==================== SMART FARMING ====================
+function MissionIntro({ mission, onStart, onBack }) {
+  return (
+    <section className="intro-page">
+      <button className="back-btn" onClick={onBack}>← Back to Village</button>
+      <div className={`intro-art ${mission.color}`}>
+        <span>{mission.icon}</span>
+        <div className="intro-sparkle">✦</div>
+      </div>
+      <span className="eyebrow">YOUR NEXT ADVENTURE</span>
+      <h1>{mission.name}</h1>
+      <span className="subject-tag">{mission.subject}</span>
+      <p>{mission.description}</p>
+      <div className="challenge-box">
+        <span>🎯 YOUR CHALLENGE</span>
+        <p>
+          The village is counting on you! Explore the situation, make smart
+          decisions and complete your mission.
+        </p>
+      </div>
+      <button className="primary-btn" onClick={onStart}>Start Mission →</button>
+    </section>
+  );
+}
 
 function FarmingGame({ settings, onFinish, onBack }) {
   const [plots, setPlots] = useState([0, 0, 0, 0, 0, 0]);
   const [water, setWater] = useState(settings.farmWater);
-  const [message, setMessage] = useState("Tap an empty field to plant a crop.");
+  const [message, setMessage] = useState("Choose a plot to begin planting!");
   const [harvested, setHarvested] = useState(0);
 
-  function updatePlot(index) {
-    const current = plots[index];
-    const next = [...plots];
+  const target = settings.farmTarget;
+  const planted = plots.filter((plot) => plot >= 1).length;
+  const growing = plots.filter((plot) => plot === 2).length;
 
-    if (current === 0) {
-      next[index] = 1;
-      setMessage("🌱 Seeds planted! Give your crop some water.");
-    } else if (current === 1) {
+  function workOnPlot(index) {
+    const stage = plots[index];
+
+    if (stage === 0) {
+      setPlots((current) => current.map((value, i) => i === index ? 1 : value));
+      setMessage("Great! You planted a seed. Now give it water. 🌱");
+    } else if (stage === 1) {
       if (water <= 0) {
-        setMessage("You are out of water! Manage your water supply carefully.");
+        setMessage("You are out of water! Try another plot or finish with your harvest.");
         return;
       }
-      next[index] = 2;
-      setWater((old) => old - 1);
-      setMessage("💦 Your crop has been watered!");
-    } else if (current === 2) {
-      next[index] = 3;
-      setHarvested((old) => old + 1);
-      setMessage("🌾 Great harvest! You collected one crop.");
+      setWater((current) => current - 1);
+      setPlots((current) => current.map((value, i) => i === index ? 2 : value));
+      setMessage("Your crop is growing! Keep going. 🌿");
+    } else if (stage === 2) {
+      setPlots((current) => current.map((value, i) => i === index ? 3 : value));
+      setHarvested((current) => current + 1);
+      setMessage("Wonderful harvest! You grew a healthy crop. 🌾");
     } else {
-      setMessage("This plot has already been harvested.");
-      return;
+      setMessage("This plot has already been harvested!");
     }
-
-    setPlots(next);
   }
 
-  const target = settings.farmTarget;
-  const won = harvested >= target;
+  function finish() {
+    if (harvested < target) {
+      setMessage(`You need to harvest ${target} plots. You have harvested ${harvested}.`);
+      return;
+    }
+    onFinish(harvested);
+  }
 
   return (
-    <section className="gq-panel">
-      <div className="gq-kicker">🌾 SMART FARMING</div>
-      <h1 className="gq-title" style={{ fontSize: 32 }}>Run Your Village Farm</h1>
-      <p className="gq-subtitle" style={{ marginLeft: 0 }}>
-        Plant seeds, water your crops and harvest your farm.
-      </p>
-
-      <div className="gq-stats">
-        <div className="gq-stat"><strong>{harvested}/{target}</strong><span>Crops harvested</span></div>
-        <div className="gq-stat"><strong>{water} 💧</strong><span>Water units left</span></div>
+    <section className="game-page">
+      <button className="back-btn" onClick={onBack}>← Leave Mission</button>
+      <div className="game-heading">
+        <span className="eyebrow">MISSION 01</span>
+        <h1>🌾 Smart Farming</h1>
+        <p>Grow healthy crops and manage your farm!</p>
       </div>
 
-      <div className="gq-progress"><div style={{ width: `${Math.min(100, harvested / target * 100)}%` }} /></div>
-
-      <div className="gq-question">
-        <strong>🌻 Your Farming Situation</strong>
-        <p>You need to harvest {target} crops. Each plot needs to be planted and watered before harvesting.</p>
-        <strong>Tap each field to complete its stages.</strong>
-      </div>
-
-      <div className="gq-grid">
-        {plots.map((stage, index) => (
-          <button className="gq-plot" key={index} onClick={() => updatePlot(index)} disabled={won}>
-            <span style={{ fontSize: 30 }}>{["🟫", "🌱", "🌿", "🌾"][stage]}</span>
-            <strong>Field {index + 1}</strong>
-            <span className="gq-small">{["Empty field", "Seeds planted", "Growing crop", "Harvested"][stage]}</span>
-          </button>
-        ))}
-      </div>
-
-      <div className="gq-notice">{message}</div>
-
-      {won ? (
-        <div className="gq-center">
-          <h2>🎉 Your farm is successful!</h2>
-          <p>You harvested {harvested} crops. Well done, farmer!</p>
-          <button className="gq-btn green" onClick={onFinish}>Collect 100 Coins</button>
+      <div className="game-scene farm-scene">
+        <div className="scene-sun">☀️</div>
+        <div className="scene-title">YOUR FARM</div>
+        <div className="farm-plots">
+          {plots.map((stage, index) => (
+            <button
+              key={index}
+              className={`farm-plot stage-${stage}`}
+              onClick={() => workOnPlot(index)}
+              disabled={stage === 3}
+            >
+              <span>{stage === 0 ? "🟫" : stage === 1 ? "🌱" : stage === 2 ? "🌿" : "🌾"}</span>
+              <small>{stage === 0 ? "Plant" : stage === 1 ? "Water" : stage === 2 ? "Harvest" : "Done"}</small>
+            </button>
+          ))}
         </div>
-      ) : (
-        <button className="gq-btn secondary" onClick={onBack}>Exit Mission</button>
-      )}
+        <div className="scene-ground">🌻　🌱　🌼　🌱　🌻</div>
+      </div>
+
+      <div className="game-stats">
+        <div><span>💧</span><strong>{water}</strong><small>Water units left</small></div>
+        <div><span>🌱</span><strong>{planted}/6</strong><small>Plots planted</small></div>
+        <div><span>🌾</span><strong>{harvested}/{target}</strong><small>Harvest goal</small></div>
+      </div>
+
+      <div className="game-instructions">
+        <h3>🚜 How to play</h3>
+        <p>Tap an empty plot to plant a seed. Tap it again to water it. Tap the growing crop to harvest it.</p>
+        <div className="notice">{message}</div>
+        <button className="primary-btn full-btn" onClick={finish}>
+          Collect Farm Reward →
+        </button>
+      </div>
     </section>
   );
 }
 
-// ==================== SAVE EVERY DROP ====================
-
 function WaterGame({ settings, onFinish, onBack }) {
+  const total = settings.waterTarget;
+  const targetEach = total / 3;
+
   const [leakFixed, setLeakFixed] = useState(false);
   const [rainCollected, setRainCollected] = useState(false);
   const [allocation, setAllocation] = useState([0, 0, 0]);
-  const [message, setMessage] = useState("Start by repairing the leaking village pipe.");
+  const [message, setMessage] = useState("Fix the leaking pipe first!");
 
-  const total = settings.waterTarget;
   const allocated = allocation.reduce((sum, value) => sum + value, 0);
-  const targetEach = total / 3;
-  const complete = leakFixed && rainCollected && allocation.every((v) => v >= targetEach);
+  const remaining = total - allocated;
+  const places = ["🏠 Homes", "🏫 School", "🌾 Farm"];
 
-  function changeAllocation(index, value) {
-    const next = [...allocation];
-    const amount = Math.max(0, Number(value));
-    const otherTotal = allocation.reduce((sum, v, i) => i === index ? sum : sum + v, 0);
-    next[index] = Math.min(amount, total - otherTotal);
-    setAllocation(next);
+  function changeAllocation(index, amount) {
+    setAllocation((current) => {
+      const updated = [...current];
+      const nextValue = Math.max(0, Math.min(targetEach, updated[index] + amount));
+      const otherTotal = updated.reduce((sum, value, i) => i === index ? sum : sum + value, 0);
+      updated[index] = Math.min(nextValue, total - otherTotal);
+      return updated;
+    });
+  }
+
+  function finish() {
+    const allEqual = allocation.every((value) => value === targetEach);
+    if (!leakFixed || !rainCollected || allocated !== total || !allEqual) {
+      setMessage("Complete all tasks and distribute the water equally before finishing.");
+      return;
+    }
+    onFinish(3);
   }
 
   return (
-    <section className="gq-panel">
-      <div className="gq-kicker">💧 SAVE EVERY DROP</div>
-      <h1 className="gq-title" style={{ fontSize: 32 }}>Help Your Village Save Water</h1>
-      <p className="gq-subtitle" style={{ marginLeft: 0 }}>
-        Complete the tasks to make sure the village has enough water.
-      </p>
-
-      <div className="gq-stats">
-        <div className="gq-stat"><strong>{total} L</strong><span>Village water target</span></div>
-        <div className="gq-stat"><strong>{allocated} L</strong><span>Water allocated</span></div>
+    <section className="game-page">
+      <button className="back-btn" onClick={onBack}>← Leave Mission</button>
+      <div className="game-heading">
+        <span className="eyebrow">MISSION 02</span>
+        <h1>💧 Save Every Drop</h1>
+        <p>Your village needs your help to manage its water supply!</p>
       </div>
 
-      <div className="gq-card">
-        <h3>1. Repair the leaking pipe 🔧</h3>
-        <p>A village pipe is wasting water. Stop the leak before it gets worse.</p>
-        <button className="gq-btn blue" disabled={leakFixed} onClick={() => {
-          setLeakFixed(true);
-          setMessage("Great! The pipe has been repaired.");
-        }}>
-          {leakFixed ? "✓ Pipe Repaired" : "Repair Pipe"}
+      <div className="game-scene water-scene">
+        <div className="water-sky">☁️　☀️　☁️</div>
+        <div className="water-village">🏠　🏫　🏡</div>
+        <div className="water-river">〰️💧〰️💧〰️💧〰️</div>
+      </div>
+
+      <div className="task-card">
+        <div className="task-top">
+          <span>STEP 1</span>
+          <strong>{leakFixed ? "✓ Completed" : "Fix the leaking pipe"}</strong>
+        </div>
+        <p>A village pipe is wasting water. Stop the leak to protect the supply.</p>
+        <button
+          className={leakFixed ? "success-btn" : "secondary-btn"}
+          onClick={() => {
+            setLeakFixed(true);
+            setMessage("Leak fixed! Now collect rainwater. 🌧️");
+          }}
+          disabled={leakFixed}
+        >
+          {leakFixed ? "Pipe Repaired ✓" : "🔧 Repair Pipe"}
         </button>
       </div>
 
-      <div className="gq-card" style={{ marginTop: 14 }}>
-        <h3>2. Collect rainwater 🌧️</h3>
-        <p>Set up a rainwater collection system for the village.</p>
-        <button className="gq-btn blue" disabled={rainCollected || !leakFixed} onClick={() => {
-          setRainCollected(true);
-          setMessage("Wonderful! Rainwater collection is ready.");
-        }}>
-          {rainCollected ? "✓ Rainwater Collected" : "Set Up Collection"}
+      <div className="task-card">
+        <div className="task-top">
+          <span>STEP 2</span>
+          <strong>{rainCollected ? "✓ Completed" : "Collect rainwater"}</strong>
+        </div>
+        <p>Rainwater can help the village. Collect it for the community.</p>
+        <button
+          className={rainCollected ? "success-btn" : "secondary-btn"}
+          onClick={() => {
+            setRainCollected(true);
+            setMessage("Rainwater collected! Now share the water fairly. 💧");
+          }}
+          disabled={!leakFixed || rainCollected}
+        >
+          {rainCollected ? "Rainwater Collected ✓" : "🪣 Collect Water"}
         </button>
-        {!leakFixed && <p className="gq-small">Repair the pipe first.</p>}
       </div>
 
-      <div className="gq-card" style={{ marginTop: 14 }}>
-        <h3>3. Share water fairly 🏘️</h3>
-        <p>Divide {total} litres equally between three village areas. Each area needs at least {targetEach} litres.</p>
-        {["Homes", "School", "Farm"].map((area, index) => (
-          <div key={area} style={{ margin: "12px 0" }}>
-            <label className="gq-label">{area}: {allocation[index]} litres</label>
-            <input
-              className="gq-input"
-              type="number"
-              min="0"
-              max={total}
-              value={allocation[index]}
-              onChange={(e) => changeAllocation(index, e.target.value)}
-            />
+      <div className="task-card allocation-card">
+        <div className="task-top">
+          <span>STEP 3</span>
+          <strong>Share the water fairly</strong>
+        </div>
+        <p>
+          You have <strong>{total} litres</strong> of water. Give each place
+          exactly <strong>{targetEach} litres</strong>.
+        </p>
+        <div className="water-counter">
+          <span>Remaining water</span>
+          <strong>{remaining} L</strong>
+        </div>
+        {places.map((place, index) => (
+          <div className="allocation-row" key={place}>
+            <div className="allocation-label">
+              <strong>{place}</strong>
+              <span>{allocation[index]} / {targetEach} L</span>
+            </div>
+            <div className="allocation-controls">
+              <button onClick={() => changeAllocation(index, -50)} disabled={allocation[index] === 0}>−</button>
+              <div className="allocation-bar">
+                <div style={{ width: `${(allocation[index] / targetEach) * 100}%` }} />
+              </div>
+              <button onClick={() => changeAllocation(index, 50)} disabled={allocation[index] >= targetEach || remaining === 0}>+</button>
+            </div>
           </div>
         ))}
-        <p className="gq-small">Total allocated: {allocated} / {total} litres</p>
-      </div>
-
-      <div className="gq-notice">{message}</div>
-
-      {complete ? (
-        <div className="gq-center">
-          <h2>🎉 Your village is water-wise!</h2>
-          <p>You repaired the leak, collected rainwater and shared water fairly.</p>
-          <button className="gq-btn green" onClick={onFinish}>Collect 100 Coins</button>
+        <div className="allocation-total">
+          Total distributed: <strong>{allocated} / {total} L</strong>
         </div>
-      ) : (
-        <>
-          <p className="gq-small">Complete all three tasks to finish this mission.</p>
-          <button className="gq-btn secondary" onClick={onBack}>Exit Mission</button>
-        </>
-      )}
+        <div className="notice">{message}</div>
+        <button
+          className="primary-btn full-btn"
+          onClick={finish}
+          disabled={!leakFixed || !rainCollected}
+        >
+          Complete Water Mission →
+        </button>
+      </div>
     </section>
   );
 }
-
-// ==================== VILLAGE BUS STAND ====================
 
 function BusGame({ settings, onFinish, onBack }) {
   const [route, setRoute] = useState("");
   const [passengers, setPassengers] = useState(0);
   const [adultTickets, setAdultTickets] = useState(0);
   const [studentTickets, setStudentTickets] = useState(0);
-  const [message, setMessage] = useState("Choose a route to begin your journey.");
+  const [message, setMessage] = useState("Choose a route to begin your journey!");
 
   const capacity = settings.busCapacity;
   const totalTickets = adultTickets + studentTickets;
-  const revenue = adultTickets * settings.fare + studentTickets * (settings.fare / 2);
-  const completed = route !== "" && passengers > 0 && totalTickets === passengers;
+  const revenue = adultTickets * settings.fare + studentTickets * Math.ceil(settings.fare / 2);
 
   function boardPassenger() {
-    if (passengers >= capacity) {
-      setMessage("The bus is full! You cannot board more passengers.");
+    if (!route) {
+      setMessage("Choose a route before boarding passengers.");
       return;
     }
-    setPassengers((old) => old + 1);
-    setMessage("A passenger has boarded. Remember to issue a ticket!");
+    if (passengers >= capacity) {
+      setMessage("The bus is full! You have reached its capacity.");
+      return;
+    }
+    setPassengers((current) => current + 1);
+    setMessage("A passenger has boarded the bus!");
   }
 
   function issueTicket(type) {
     if (totalTickets >= passengers) {
-      setMessage("Board a passenger before issuing another ticket.");
+      setMessage("Every ticket must belong to a passenger who has boarded.");
       return;
     }
-    if (type === "adult") setAdultTickets((old) => old + 1);
-    else setStudentTickets((old) => old + 1);
+    if (type === "adult") {
+      setAdultTickets((current) => current + 1);
+    } else {
+      setStudentTickets((current) => current + 1);
+    }
     setMessage("Ticket issued successfully!");
   }
 
+  function finish() {
+    if (!route || passengers === 0 || totalTickets !== passengers) {
+      setMessage("Choose a route, board passengers and issue one ticket to each passenger.");
+      return;
+    }
+    onFinish(passengers);
+  }
+
   return (
-    <section className="gq-panel">
-      <div className="gq-kicker">🚌 VILLAGE BUS STAND</div>
-      <h1 className="gq-title" style={{ fontSize: 32 }}>Manage Your Village Bus</h1>
-      <p className="gq-subtitle" style={{ marginLeft: 0 }}>
-        Choose a route, board passengers and manage their tickets.
-      </p>
-
-      <div className="gq-stats">
-        <div className="gq-stat"><strong>{passengers}/{capacity}</strong><span>Passengers</span></div>
-        <div className="gq-stat"><strong>{totalTickets}</strong><span>Tickets issued</span></div>
-        <div className="gq-stat"><strong>₹{revenue}</strong><span>Fare collected</span></div>
+    <section className="game-page">
+      <button className="back-btn" onClick={onBack}>← Leave Mission</button>
+      <div className="game-heading">
+        <span className="eyebrow">MISSION 03</span>
+        <h1>🚌 Village Bus Stand</h1>
+        <p>Manage your bus and help passengers reach their destinations!</p>
       </div>
 
-      <div className="gq-card">
-        <h3>1. Choose your bus route</h3>
-        {["Village to School", "Village to Market", "Village to Hospital"].map((item) => (
-          <div
-            key={item}
-            className={`gq-option ${route === item ? "selected" : ""}`}
-            onClick={() => {
-              setRoute(item);
-              setMessage(`Route selected: ${item}`);
-            }}
-          >
-            {route === item ? "🔘" : "⚪"} {item}
-          </div>
-        ))}
+      <div className="game-scene bus-scene">
+        <div className="bus-sky">☁️　　　　☀️</div>
+        <div className="bus-road">
+          <div className="bus-vehicle">🚌</div>
+          <span>🚏 VILLAGE BUS STAND</span>
+        </div>
       </div>
 
-      <div className="gq-card" style={{ marginTop: 14 }}>
-        <h3>2. Board passengers</h3>
-        <p>Make sure the bus does not exceed its capacity.</p>
-        <button className="gq-btn orange" disabled={!route || passengers >= capacity} onClick={boardPassenger}>
+      <div className="task-card">
+        <div className="task-top">
+          <span>STEP 1</span>
+          <strong>Choose your route</strong>
+        </div>
+        <p>Where should your bus travel today?</p>
+        <div className="route-grid">
+          {["Village → School", "Village → Market", "Village → Hospital"].map((item) => (
+            <button
+              key={item}
+              className={`route-btn ${route === item ? "selected" : ""}`}
+              onClick={() => {
+                setRoute(item);
+                setMessage(`Route selected: ${item}`);
+              }}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="task-card">
+        <div className="task-top">
+          <span>STEP 2</span>
+          <strong>Board passengers</strong>
+        </div>
+        <p>Bus capacity: {capacity} passengers.</p>
+        <div className="passenger-count">
+          <span>🧍 Passengers on board</span>
+          <strong>{passengers} / {capacity}</strong>
+        </div>
+        <div className="capacity-bar">
+          <div style={{ width: `${(passengers / capacity) * 100}%` }} />
+        </div>
+        <button
+          className="secondary-btn"
+          onClick={boardPassenger}
+          disabled={passengers >= capacity}
+        >
           + Board Passenger
         </button>
       </div>
 
-      <div className="gq-card" style={{ marginTop: 14 }}>
-        <h3>3. Issue passenger tickets</h3>
-        <p>Adult fare: ₹{settings.fare} | Student fare: ₹{settings.fare / 2}</p>
-        <button className="gq-btn orange" disabled={totalTickets >= passengers} onClick={() => issueTicket("adult")}>
-          Adult Ticket
-        </button>
-        <button className="gq-btn orange" disabled={totalTickets >= passengers} onClick={() => issueTicket("student")}>
-          Student Ticket
-        </button>
-        <p className="gq-small">Adult tickets: {adultTickets} | Student tickets: {studentTickets}</p>
-      </div>
-
-      <div className="gq-notice">{message}</div>
-
-      {completed ? (
-        <div className="gq-center">
-          <h2>🎉 Bus ready for departure!</h2>
-          <p>Route: {route}</p>
-          <p>Passengers: {passengers} | Tickets: {totalTickets} | Revenue: ₹{revenue}</p>
-          <button className="gq-btn green" onClick={onFinish}>Start Trip & Collect 100 Coins</button>
+      <div className="task-card">
+        <div className="task-top">
+          <span>STEP 3</span>
+          <strong>Issue tickets</strong>
         </div>
-      ) : (
-        <>
-          <p className="gq-small">Choose a route, board at least one passenger and issue a ticket to each passenger.</p>
-          <button className="gq-btn secondary" onClick={onBack}>Exit Mission</button>
-        </>
-      )}
+        <p>
+          Adult fare: ₹{settings.fare}. Student fare: ₹{Math.ceil(settings.fare / 2)}.
+        </p>
+        <div className="ticket-buttons">
+          <button
+            className="ticket-btn"
+            onClick={() => issueTicket("adult")}
+            disabled={totalTickets >= passengers}
+          >
+            🎟️ Adult Ticket
+          </button>
+          <button
+            className="ticket-btn"
+            onClick={() => issueTicket("student")}
+            disabled={totalTickets >= passengers}
+          >
+            🎫 Student Ticket
+          </button>
+        </div>
+        <div className="ticket-summary">
+          <div><span>Adult tickets</span><strong>{adultTickets}</strong></div>
+          <div><span>Student tickets</span><strong>{studentTickets}</strong></div>
+          <div><span>Total tickets</span><strong>{totalTickets}/{passengers}</strong></div>
+          <div><span>Money collected</span><strong>₹{revenue}</strong></div>
+        </div>
+        <div className="notice">{message}</div>
+        <button className="primary-btn full-btn" onClick={finish}>
+          Complete Bus Mission →
+        </button>
+      </div>
     </section>
   );
 }
+
+function ResultPage({ result, onContinue }) {
+  return (
+    <section className="result-page">
+      <div className="result-confetti">🎉 ✨ 🎊 ✨ 🎉</div>
+      <div className="result-medal">🏆</div>
+      <span className="eyebrow">MISSION ACCOMPLISHED</span>
+      <h1>{result.title}</h1>
+      <p className="result-message">{result.message}</p>
+
+      <div className="result-stats">
+        <div>
+          <span>⭐</span>
+          <strong>{result.score}</strong>
+          <small>Mission score</small>
+        </div>
+        <div>
+          <span>🪙</span>
+          <strong>+{result.reward}</strong>
+          <small>Coins earned</small>
+        </div>
+      </div>
+
+      {result.alreadyCompleted && (
+        <p className="repeat-note">You have played this mission before. You earned a repeat-play reward!</p>
+      )}
+
+      <div className="learning-result-card">
+        <span className="eyebrow">WHAT DID YOU LEARN?</span>
+        <h2>Learning from your adventure 🧠</h2>
+        <p>You just used real-life skills to solve a village challenge!</p>
+        <ul>
+          {result.concepts.map((concept) => (
+            <li key={concept}>✓ {concept}</li>
+          ))}
+        </ul>
+      </div>
+
+      <button className="primary-btn full-btn" onClick={onContinue}>
+        Return to Mission Village →
+      </button>
+    </section>
+  );
+}
+
+export default App;
