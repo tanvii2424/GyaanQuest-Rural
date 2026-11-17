@@ -1,0 +1,667 @@
+
+import { useState } from "react";
+import "./App.css";
+
+const missions = [
+  { id: 1, name: "Village Market", icon: "🥕", subject: "Maths", description: "Shop, calculate prices and give correct change." },
+  { id: 2, name: "Smart Farming", icon: "🌾", subject: "Maths + Science", description: "Manage seeds, crops and farm resources." },
+  { id: 3, name: "Save Every Drop", icon: "💧", subject: "Maths + Science", description: "Manage water and prevent wastage." },
+  { id: 4, name: "Build Your Village", icon: "🏡", subject: "Maths", description: "Explore shapes, area and measurements." },
+  { id: 5, name: "Village Bus Stand", icon: "🚌", subject: "Maths + Life Skills", description: "Calculate distances, travel time and ticket costs." },
+];
+
+const vegetables = [
+  { id: 1, name: "Tomatoes", emoji: "🍅", price: 40, unit: "kg" },
+  { id: 2, name: "Potatoes", emoji: "🥔", price: 30, unit: "kg" },
+  { id: 3, name: "Carrots", emoji: "🥕", price: 50, unit: "kg" },
+  { id: 4, name: "Onions", emoji: "🧅", price: 35, unit: "kg" },
+  { id: 5, name: "Cabbage", emoji: "🥬", price: 25, unit: "piece" },
+  { id: 6, name: "Bananas", emoji: "🍌", price: 60, unit: "dozen" },
+  { id: 7, name: "Apples", emoji: "🍎", price: 120, unit: "kg" },
+  { id: 8, name: "Chillies", emoji: "🌶️", price: 80, unit: "kg" },
+];
+
+const budgets = {
+  7: 500,
+  8: 750,
+  9: 1000,
+  10: 1500,
+};
+
+const customerOrders = [
+  {
+    name: "Customer 1",
+    message: "I need vegetables for today's lunch!",
+    request: [
+      { id: 1, quantity: 2 },
+      { id: 2, quantity: 1 },
+      { id: 3, quantity: 1 },
+    ],
+  },
+  {
+    name: "Customer 2",
+    message: "Please pack these vegetables for my family.",
+    request: [
+      { id: 4, quantity: 2 },
+      { id: 5, quantity: 2 },
+      { id: 6, quantity: 1 },
+    ],
+  },
+  {
+    name: "Customer 3",
+    message: "I am shopping for a special occasion!",
+    request: [
+      { id: 7, quantity: 2 },
+      { id: 8, quantity: 1 },
+      { id: 1, quantity: 1 },
+    ],
+  },
+];
+
+function App() {
+  const [studentName, setStudentName] = useState("");
+  const [selectedClass, setSelectedClass] = useState("7");
+  const [playMode, setPlayMode] = useState("Individual");
+  const [screen, setScreen] = useState("home");
+  const [selectedMission, setSelectedMission] = useState(null);
+
+  const [cart, setCart] = useState({});
+  const [payment, setPayment] = useState("");
+  const [changeReturned, setChangeReturned] = useState("");
+  const [saleComplete, setSaleComplete] = useState(false);
+
+  const [coins, setCoins] = useState(0);
+  const [stars, setStars] = useState(0);
+  const [message, setMessage] = useState("");
+  const [orderIndex, setOrderIndex] = useState(0);
+  const [completedOrders, setCompletedOrders] = useState(0);
+  const [correctChangeOrders, setCorrectChangeOrders] = useState(0);
+
+  const total = vegetables.reduce(
+    (sum, item) => sum + item.price * (cart[item.id] || 0),
+    0
+  );
+
+  const itemCount = Object.values(cart).reduce(
+    (sum, quantity) => sum + quantity,
+    0
+  );
+
+  const change = Number(payment) - total;
+  const budget = budgets[selectedClass];
+  const currentOrder = customerOrders[orderIndex];
+
+  function openMission(mission) {
+    setSelectedMission(mission);
+    setScreen("mission");
+    setCart({});
+    setPayment("");
+    setChangeReturned("");
+    setSaleComplete(false);
+    setMessage("");
+    setOrderIndex(0);
+    setCompletedOrders(0);
+    setCorrectChangeOrders(0);
+    setCoins(0);
+    setStars(0);
+  }
+
+  function returnToVillage() {
+    setScreen("village");
+    setSelectedMission(null);
+  }
+
+  function addToCart(id) {
+    if (saleComplete) return;
+
+    const request = currentOrder.request.find((item) => item.id === id);
+
+    if (!request) {
+      setMessage("This item is not on the customer's shopping list!");
+      return;
+    }
+
+    const quantity = cart[id] || 0;
+
+    if (quantity >= request.quantity) {
+      setMessage("You already have the required quantity!");
+      return;
+    }
+
+    const vegetable = vegetables.find((item) => item.id === id);
+
+    if (total + vegetable.price > budget) {
+      setMessage("This order exceeds the class budget!");
+      return;
+    }
+
+    setCart((previous) => ({
+      ...previous,
+      [id]: quantity + 1,
+    }));
+
+    setMessage("");
+  }
+
+  function removeFromCart(id) {
+    if (saleComplete) return;
+
+    setCart((previous) => {
+      const updated = { ...previous };
+
+      if (updated[id] > 1) {
+        updated[id]--;
+      } else {
+        delete updated[id];
+      }
+
+      return updated;
+    });
+
+    setMessage("");
+  }
+
+  function isOrderCorrect() {
+    return vegetables.every((item) => {
+      const request = currentOrder.request.find(
+        (entry) => entry.id === item.id
+      );
+
+      return (cart[item.id] || 0) === (request ? request.quantity : 0);
+    });
+  }
+
+  function completeSale() {
+    if (itemCount === 0) {
+      setMessage("Please add vegetables to the basket!");
+      return;
+    }
+
+    if (!isOrderCorrect()) {
+      setMessage("Check the customer's shopping list!");
+      return;
+    }
+
+    if (payment.trim() === "" || Number(payment) < total) {
+      setMessage("The customer has not paid enough!");
+      return;
+    }
+
+    if (changeReturned.trim() === "") {
+      setMessage("Please calculate and enter the change you will return!");
+      return;
+    }
+
+    if (Number(changeReturned) !== change) {
+      setMessage(`Incorrect change! Calculate again. The correct change is ₹${change}.`);
+      return;
+    }
+
+    setCoins((previous) => previous + 20);
+    setStars((previous) => previous + 3);
+    setCompletedOrders((previous) => previous + 1);
+    setCorrectChangeOrders((previous) => previous + 1);
+    setSaleComplete(true);
+    setMessage("Perfect! Correct order and correct change! 🎉");
+  }
+
+  function serveNextCustomer() {
+    if (orderIndex < 2) {
+      setOrderIndex((previous) => previous + 1);
+      setCart({});
+      setPayment("");
+      setChangeReturned("");
+      setSaleComplete(false);
+      setMessage("");
+    }
+  }
+
+  function openRewards() {
+    setScreen("rewards");
+  }
+
+  return (
+    <div className="app">
+
+      {/* NAVBAR */}
+      <header className="navbar">
+        <div className="logo">
+          <span className="logo-icon">🎮</span>
+          <div>
+            <h2>GyaanQuest</h2>
+            <p>LEARN • PLAY • GROW</p>
+          </div>
+        </div>
+        <div className="offline-tag">● Offline Friendly</div>
+      </header>
+
+      {/* HOME PAGE */}
+      {screen === "home" && (
+        <main className="home">
+          <section className="welcome">
+            <div>
+              <span className="eyebrow">YOUR ADVENTURE BEGINS</span>
+              <h1>Welcome to <span>Mission Village!</span> 🏡</h1>
+              <p>
+                Turn everyday village life into an exciting learning
+                adventure. Explore, play games and earn rewards!
+              </p>
+            </div>
+            <div className="welcome-art">🌳 🏡 🌾</div>
+          </section>
+
+          <section className="setup-card">
+            <h2>Start Your Adventure</h2>
+            <p className="section-subtitle">
+              Set up your player details before entering the village.
+            </p>
+
+            <label>Name or Team Name</label>
+            <input
+              value={studentName}
+              onChange={(e) => setStudentName(e.target.value)}
+              placeholder="Example: Team 1"
+            />
+
+            <label>Select Your Class</label>
+            <div className="class-options">
+              {["7", "8", "9", "10"].map((grade) => (
+                <button
+                  key={grade}
+                  className={selectedClass === grade ? "class-btn active" : "class-btn"}
+                  onClick={() => setSelectedClass(grade)}
+                >
+                  Class {grade}
+                </button>
+              ))}
+            </div>
+
+            <label>Choose Playing Mode</label>
+            <div className="mode-options">
+              <button
+                className={playMode === "Individual" ? "mode-btn selected" : "mode-btn"}
+                onClick={() => setPlayMode("Individual")}
+              >
+                <span>👤</span>
+                <strong>Individual Mode</strong>
+                <small>Play on your own</small>
+              </button>
+
+              <button
+                className={playMode === "Team" ? "mode-btn selected" : "mode-btn"}
+                onClick={() => setPlayMode("Team")}
+              >
+                <span>👥</span>
+                <strong>Team Mode</strong>
+                <small>Play with 3–5 friends</small>
+              </button>
+            </div>
+
+            <button
+              className="start-btn"
+              onClick={() => setScreen("village")}
+            >
+              Enter Mission Village →
+            </button>
+          </section>
+        </main>
+      )}
+
+      {/* VILLAGE MAP */}
+      {screen === "village" && (
+        <main className="village-page">
+          <div className="village-heading">
+            <span className="eyebrow">
+              CLASS {selectedClass} · {playMode.toUpperCase()} MODE
+            </span>
+            <h1>Explore Mission Village 🏡</h1>
+            <p>Choose a location on the map to begin your adventure.</p>
+          </div>
+
+          <div className="village-instructions">
+            <span>🧭</span>
+            <div>
+              <strong>Your Mission Map</strong>
+              <p>Explore all five locations and complete exciting challenges!</p>
+            </div>
+          </div>
+
+          <div className="village-map">
+            <div className="village-sun">☀️</div>
+            <div className="village-cloud cloud-one">☁️</div>
+            <div className="village-cloud cloud-two">☁️</div>
+
+            <div className="village-road road-one" />
+            <div className="village-road road-two" />
+            <div className="village-road road-three" />
+
+            <div className="map-decoration tree tree-one">🌳</div>
+            <div className="map-decoration tree tree-two">🌴</div>
+            <div className="map-decoration tree tree-three">🌳</div>
+            <div className="map-decoration field-decoration">🌾🌾</div>
+            <div className="map-decoration pond-decoration">💧</div>
+
+            {missions.map((mission) => (
+              <button
+                key={mission.id}
+                className={`map-location location-${mission.id}`}
+                onClick={() => openMission(mission)}
+              >
+                <span className="map-icon">{mission.icon}</span>
+                <strong>{mission.name}</strong>
+                <small>{mission.subject}</small>
+              </button>
+            ))}
+          </div>
+
+          <button className="back-btn" onClick={() => setScreen("home")}>
+            ← Back to Home
+          </button>
+        </main>
+      )}
+
+      {/* MARKET REWARDS SCREEN */}
+      {screen === "rewards" && (
+        <main className="rewards-page">
+          <div className="rewards-trophy">🏆</div>
+
+          <span className="eyebrow">MISSION COMPLETED</span>
+          <h1>Market Champion!</h1>
+
+          <p>
+            Amazing work{studentName.trim() ? `, ${studentName}` : ""}!
+            You successfully served all three customers.
+          </p>
+
+          <div className="rewards-total">
+            <div className="reward-stat">
+              <strong>🪙 {coins}</strong>
+              Coins Earned
+            </div>
+
+            <div className="reward-stat">
+              <strong>⭐ {stars}</strong>
+              Stars Earned
+            </div>
+
+            <div className="reward-stat">
+              <strong>✅ {completedOrders}/3</strong>
+              Orders Completed
+            </div>
+          </div>
+
+          <h2>Your Achievement Badges</h2>
+
+          <div className="reward-badges">
+            <div className="reward-badge">
+              <span>🛍️</span>
+              <strong>Smart Shopper</strong>
+              <p>Completed all three shopping lists correctly.</p>
+            </div>
+
+            <div className="reward-badge">
+              <span>🧮</span>
+              <strong>Quick Calculator</strong>
+              <p>Calculated the correct change for all customers.</p>
+            </div>
+
+            <div className="reward-badge">
+              <span>🏆</span>
+              <strong>Market Champion</strong>
+              <p>Successfully served all three customers.</p>
+            </div>
+          </div>
+
+          <h3>Your Star Collection</h3>
+          <div className="reward-progress">
+            <div
+              className="reward-progress-fill"
+              style={{ width: `${(stars / 9) * 100}%` }}
+            />
+          </div>
+          <p className="reward-note">{stars} out of 9 stars collected!</p>
+
+          <button
+            className="reward-button"
+            onClick={returnToVillage}
+          >
+            Return to Mission Village →
+          </button>
+        </main>
+      )}
+
+      {/* MISSION SCREEN */}
+      {screen === "mission" && selectedMission && (
+        selectedMission.id === 1 ? (
+          <main className="market-page">
+            <div className="market-header">
+              <button className="back-btn" onClick={returnToVillage}>
+                ← Back to Village
+              </button>
+              <p className="eyebrow">MISSION 1 · MATHS</p>
+              <h1>🥕 Village Market</h1>
+              <p>Become the best shopkeeper in the village!</p>
+            </div>
+
+            <div className="market-stats">
+              <div><span>🎓</span><small>Class</small><strong>{selectedClass}</strong></div>
+              <div><span>💰</span><small>Budget</small><strong>₹{budget}</strong></div>
+              <div><span>🪙</span><small>Coins</small><strong>{coins}</strong></div>
+              <div><span>⭐</span><small>Stars</small><strong>{stars}</strong></div>
+              <div><span>🧺</span><small>Basket</small><strong>{itemCount} items</strong></div>
+            </div>
+
+            <div className="customer-order">
+              <div className="customer-avatar">🧑‍🌾</div>
+              <div className="customer-details">
+                <span className="eyebrow">CUSTOMER {orderIndex + 1} OF 3</span>
+                <h2>{currentOrder.name} has arrived!</h2>
+                <p>{currentOrder.message}</p>
+                <strong>Shopping List</strong>
+                <div className="order-list">
+                  {currentOrder.request.map((request) => {
+                    const item = vegetables.find((v) => v.id === request.id);
+                    return (
+                      <span className="order-item" key={request.id}>
+                        {item.emoji} {item.name} × {request.quantity}
+                      </span>
+                    );
+                  })}
+                </div>
+                <p className="order-progress">
+                  Orders completed: {completedOrders} / 3
+                </p>
+              </div>
+            </div>
+
+            <div className="market-layout">
+              <section className="shop-section">
+                <h2>🛍️ Vegetable Shop</h2>
+                <p className="basket-subtitle">Choose items from the shopping list.</p>
+
+                <div className="vegetable-grid">
+                  {vegetables.map((item) => {
+                    const request = currentOrder.request.find((r) => r.id === item.id);
+                    const required = request ? request.quantity : 0;
+                    const quantity = cart[item.id] || 0;
+
+                    return (
+                      <div className="vegetable-card" key={item.id}>
+                        <span className="vegetable-emoji">{item.emoji}</span>
+                        <strong>{item.name}</strong>
+                        <span className="vegetable-price">₹{item.price} / {item.unit}</span>
+                        <small>{required ? `Required: ${required}` : "Not in this order"}</small>
+                        <button
+                          className="add-button"
+                          disabled={saleComplete || !required || quantity >= required}
+                          onClick={() => addToCart(item.id)}
+                        >
+                          {!required ? "Not Required" : quantity >= required ? "Added ✓" : "Add to Basket +"}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+
+              <aside className="basket-section">
+                <h2>🧺 Shopping Basket</h2>
+
+                {itemCount === 0 ? (
+                  <div className="empty-basket">
+                    <span>🧺</span>
+                    <p>Your basket is empty!</p>
+                    <small>Add items from the shop.</small>
+                  </div>
+                ) : (
+                  <div className="basket-items">
+                    {vegetables.filter((item) => cart[item.id]).map((item) => (
+                      <div className="basket-item" key={item.id}>
+                        <span className="basket-emoji">{item.emoji}</span>
+                        <div className="basket-item-info">
+                          <strong>{item.name}</strong>
+                          <small>₹{item.price} × {cart[item.id]}</small>
+                        </div>
+                        <div className="quantity-controls">
+                          <button disabled={saleComplete} onClick={() => removeFromCart(item.id)}>−</button>
+                          <span>{cart[item.id]}</span>
+                          <button
+                            disabled={
+                              saleComplete ||
+                              cart[item.id] >= currentOrder.request.find((r) => r.id === item.id).quantity
+                            }
+                            onClick={() => addToCart(item.id)}
+                          >+</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="bill-total">
+                  <span>Total Amount</span>
+                  <strong>₹{total}</strong>
+                </div>
+
+                <div className="budget-progress">
+                  <div className="budget-label">
+                    <span>Class budget</span>
+                    <span>₹{budget - total} left</span>
+                  </div>
+                  <div className="budget-track">
+                    <div
+                      className="budget-fill"
+                      style={{ width: `${Math.min((total / budget) * 100, 100)}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="payment-section">
+                  <label>💵 Customer Payment (₹)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Enter payment"
+                    value={payment}
+                    disabled={saleComplete}
+                    onChange={(e) => {
+                      setPayment(e.target.value);
+                      setChangeReturned("");
+                      setMessage("");
+                    }}
+                  />
+                </div>
+
+                {payment !== "" && total > 0 && (
+                  <div className="change-display">
+                    <span>Amount to return</span>
+                    <strong>
+                      {change >= 0 ? `₹${change}` : "Insufficient payment"}
+                    </strong>
+                  </div>
+                )}
+
+                {payment !== "" && total > 0 && change >= 0 && (
+                  <div className="payment-section">
+                    <label>🧮 Enter Change You Will Return (₹)</label>
+                    <input
+                      className="change-input"
+                      type="number"
+                      min="0"
+                      placeholder="Calculate the change"
+                      value={changeReturned}
+                      disabled={saleComplete}
+                      onChange={(e) => {
+                        setChangeReturned(e.target.value);
+                        setMessage("");
+                      }}
+                    />
+                  </div>
+                )}
+
+                {message && (
+                  <p className={saleComplete ? "success-message" : "error-message"}>
+                    {message}
+                  </p>
+                )}
+
+                {!saleComplete && (
+                  <button className="checkout-button" onClick={completeSale}>
+                    Complete Sale ✓
+                  </button>
+                )}
+
+                {saleComplete && (
+                  <div className="sale-success">
+                    <span>🎉</span>
+                    <h3>Order Completed!</h3>
+                    <p>Correct shopping list and change!</p>
+                    <p>⭐ 3 Stars earned!</p>
+                    <p>🪙 20 Coins earned!</p>
+
+                    {orderIndex < 2 ? (
+                      <button className="add-button" onClick={serveNextCustomer}>
+                        Serve Next Customer →
+                      </button>
+                    ) : (
+                      <button className="add-button" onClick={openRewards}>
+                        View My Rewards 🏆
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                <div className="market-tip">
+                  💡 <strong>Learning Tip:</strong> Calculate the total carefully and return the correct change!
+                </div>
+              </aside>
+            </div>
+          </main>
+        ) : (
+          <main className="mission-detail">
+            <button className="back-btn" onClick={returnToVillage}>← Back to Village</button>
+            <span className="large-mission-icon">{selectedMission.icon}</span>
+            <span className="eyebrow">MISSION {selectedMission.id}</span>
+            <h1>{selectedMission.name}</h1>
+            <p>{selectedMission.description}</p>
+            <div className="coming-soon">
+              <h2>🚧 Interactive Game Coming Next!</h2>
+              <p>We are building this village adventure for you.</p>
+            </div>
+            <button className="start-btn" onClick={returnToVillage}>
+              Explore Other Missions
+            </button>
+          </main>
+        )
+      )}
+
+      <footer>
+        <strong>GyaanQuest – Learn • Play • Grow</strong>
+        <br />
+        <small>Turning everyday village life into an interactive classroom.</small>
+      </footer>
+    </div>
+  );
+}
+
+export default App;
