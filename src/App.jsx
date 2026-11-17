@@ -555,16 +555,99 @@ function App() {
 
       {/* LOGIN / PLAYER SETUP PAGE */}
 
-      {screen === "login" && (
-        <main className="home">
-          <section style={{
-            maxWidth: "650px",
-            margin: "45px auto",
-            padding: "35px",
-            background: "white",
-            borderRadius: "22px",
-            boxShadow: "0 8px 30px rgba(0,0,0,0.08)"
-          }}>
+      
+{screen === "login" && (
+  <main className="home">
+    <section className="setup-card">
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontSize: "3.5rem", marginBottom: "12px" }}>
+          🎮
+        </div>
+
+        <span className="eyebrow">YOUR ADVENTURE STARTS HERE</span>
+
+        <h2 style={{ marginTop: "12px" }}>Player Login</h2>
+
+        <p className="section-subtitle">
+          Tell us a little about yourself before entering GyaanQuest!
+        </p>
+      </div>
+
+      <label>Student Name / Team Name</label>
+
+      <input
+        value={studentName}
+        onChange={(e) => setStudentName(e.target.value)}
+        placeholder="Enter your name or team name"
+      />
+
+      <label>Select Your Class</label>
+
+      <div className="class-options">
+        {["7", "8", "9", "10"].map((grade) => (
+          <button
+            key={grade}
+            className={
+              selectedClass === grade ? "class-btn active" : "class-btn"
+            }
+            onClick={() => setSelectedClass(grade)}
+          >
+            Class {grade}
+          </button>
+        ))}
+      </div>
+
+      <label>Choose Your Playing Mode</label>
+
+      <div className="mode-options">
+        <button
+          className={
+            playMode === "Individual" ? "mode-btn selected" : "mode-btn"
+          }
+          onClick={() => setPlayMode("Individual")}
+        >
+          <span>👤</span>
+          <strong>Individual Mode</strong>
+          <small>Play on your own</small>
+        </button>
+
+        <button
+          className={
+            playMode === "Team" ? "mode-btn selected" : "mode-btn"
+          }
+          onClick={() => setPlayMode("Team")}
+        >
+          <span>👥</span>
+          <strong>Team Mode</strong>
+          <small>Play with 3–5 friends</small>
+        </button>
+      </div>
+
+      <button
+        className="start-btn"
+        onClick={() => {
+          if (!studentName.trim()) {
+            alert("Please enter your name or team name!");
+            return;
+          }
+          setScreen("dashboard");
+        }}
+      >
+        Enter GyaanQuest →
+      </button>
+
+      <div style={{ textAlign: "center" }}>
+        <button
+          className="back-btn"
+          onClick={() => setScreen("welcome")}
+        >
+          ← Back to Welcome
+        </button>
+      </div>
+    </section>
+  </main>
+)}
+
             <div style={{ textAlign: "center", marginBottom: "28px" }}>
               <div style={{ fontSize: "3.5rem" }}>🎮</div>
 
