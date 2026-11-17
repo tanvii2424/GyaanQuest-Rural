@@ -741,9 +741,7 @@ function App() {
             >
               ← Back to Welcome
             </button>
-          </section>
-        </main>
-      )}
+        
 
       {/* LEARNING DASHBOARD */}
 

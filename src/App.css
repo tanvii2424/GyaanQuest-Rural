@@ -1207,3 +1207,44 @@ footer small {
     grid-template-columns: 1fr;
   }
 }
+/* Fix tagline overflow */
+.welcome,
+.welcome * {
+  box-sizing: border-box;
+}
+
+.welcome h1,
+.welcome p {
+  overflow-wrap: break-word;
+}
+
+.welcome {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.welcome > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.welcome p {
+  white-space: normal;
+}
+.welcome h1 {
+  font-size: clamp(26px, 4vw, 38px);
+  line-height: 1.2;
+}
+
+.welcome p {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.welcome .eyebrow {
+  font-size: 12px;
+}
+.welcome .eyebrow {
+  font-size: 11px;
+  letter-spacing: 2px;
+}
