@@ -230,7 +230,7 @@ function App() {
   const [studentName, setStudentName] = useState("");
   const [selectedClass, setSelectedClass] = useState("7");
   const [playMode, setPlayMode] = useState("Individual");
-  const [screen, setScreen] = useState("home");
+  const [screen, setScreen] = useState("welcome");
   const [selectedMission, setSelectedMission] = useState(null);
 
   // Market states
@@ -473,7 +473,7 @@ function App() {
 
       {/* WELCOME PAGE */}
 
-      {screen === "home" && (
+      {screen === "welcome" && (
         <main className="home">
           <section className="welcome">
             <div>
