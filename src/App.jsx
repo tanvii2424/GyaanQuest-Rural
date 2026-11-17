@@ -2,6 +2,8 @@
 import { useState } from "react";
 import "./App.css";
 
+// ==================== MISSIONS ====================
+
 const missions = [
   { id: 1, name: "Village Market", icon: "🥕", subject: "Maths", description: "Shop, calculate prices and give correct change." },
   { id: 2, name: "Smart Farming", icon: "🌾", subject: "Maths + Science", description: "Manage seeds, crops and farm resources." },
@@ -9,6 +11,8 @@ const missions = [
   { id: 4, name: "Build Your Village", icon: "🏡", subject: "Maths", description: "Explore shapes, area and measurements." },
   { id: 5, name: "Village Bus Stand", icon: "🚌", subject: "Maths + Life Skills", description: "Calculate distances, travel time and ticket costs." },
 ];
+
+// ==================== VILLAGE MARKET DATA ====================
 
 const vegetables = [
   { id: 1, name: "Tomatoes", emoji: "🍅", price: 40, unit: "kg" },
@@ -58,6 +62,144 @@ const customerOrders = [
   },
 ];
 
+// ==================== SMART FARMING DATA ====================
+
+const farmingChallenges = {
+  7: [
+    {
+      title: "Buy the Seeds",
+      icon: "🌱",
+      story: "You have 4 acres of farmland. Each acre needs 5 kg of wheat seeds.",
+      question: "How many kilograms of seeds do you need altogether?",
+      answer: 20,
+      unit: "kg",
+      explanation: "Seeds needed = 4 × 5 = 20 kg. Multiply the number of acres by the seeds needed for each acre.",
+      topic: "Multiplication",
+    },
+    {
+      title: "Water the Crops",
+      icon: "💧",
+      story: "Each acre of your wheat farm needs 100 litres of water.",
+      question: "How much water is needed for 4 acres?",
+      answer: 400,
+      unit: "litres",
+      explanation: "Water required = 4 × 100 = 400 litres.",
+      topic: "Multiplication",
+    },
+    {
+      title: "Harvest Time",
+      icon: "🌾",
+      story: "Your farm produces 20 kg of wheat from each acre. You have 3 acres ready for harvest.",
+      question: "How many kilograms of wheat will you harvest?",
+      answer: 60,
+      unit: "kg",
+      explanation: "Total harvest = 3 × 20 = 60 kg.",
+      topic: "Multiplication",
+    },
+  ],
+
+  8: [
+    {
+      title: "Measure the Farm",
+      icon: "📏",
+      story: "Your rectangular farm is 12 metres long and 8 metres wide.",
+      question: "What is the area of the farm in square metres?",
+      answer: 96,
+      unit: "m²",
+      explanation: "Area of a rectangle = length × breadth = 12 × 8 = 96 m².",
+      topic: "Area",
+    },
+    {
+      title: "Prepare the Seeds",
+      icon: "🌱",
+      story: "You need 2 kg of seeds for every 8 square metres of farmland. Your farm has an area of 96 m².",
+      question: "How many kilograms of seeds are required?",
+      answer: 24,
+      unit: "kg",
+      explanation: "96 ÷ 8 = 12 groups. Each group needs 2 kg, so 12 × 2 = 24 kg.",
+      topic: "Division",
+    },
+    {
+      title: "Convert Water Units",
+      icon: "🚰",
+      story: "Your farm needs 3,000 litres of water. A water tank holds 1,000 litres.",
+      question: "How many full tanks of water are required?",
+      answer: 3,
+      unit: "tanks",
+      explanation: "3,000 ÷ 1,000 = 3 tanks.",
+      topic: "Unit calculations",
+    },
+  ],
+
+  9: [
+    {
+      title: "Calculate Fertilizer",
+      icon: "🌿",
+      story: "Your farm has 150 kg of fertilizer. You plan to use 20% of it today.",
+      question: "How many kilograms of fertilizer will you use?",
+      answer: 30,
+      unit: "kg",
+      explanation: "20% of 150 = (20 ÷ 100) × 150 = 30 kg.",
+      topic: "Percentages",
+    },
+    {
+      title: "Save Water",
+      icon: "💧",
+      story: "Your farm normally uses 800 litres of water. Drip irrigation can save 25% of the water.",
+      question: "How many litres of water will you save?",
+      answer: 200,
+      unit: "litres",
+      explanation: "25% of 800 = (25 ÷ 100) × 800 = 200 litres saved.",
+      topic: "Percentages",
+    },
+    {
+      title: "Divide the Seeds",
+      icon: "🌱",
+      story: "You have 50 kg of seeds. The ratio of wheat seeds to rice seeds is 3:2.",
+      question: "How many kilograms of wheat seeds will you use?",
+      answer: 30,
+      unit: "kg",
+      explanation: "Total ratio parts = 3 + 2 = 5. One part = 50 ÷ 5 = 10 kg. Wheat = 3 × 10 = 30 kg.",
+      topic: "Ratios",
+    },
+  ],
+
+  10: [
+    {
+      title: "Calculate the Profit",
+      icon: "💰",
+      story: "You spend ₹2,000 on seeds and farming materials. After selling your crops, you earn a 25% profit on this cost.",
+      question: "How much profit do you make?",
+      answer: 500,
+      unit: "rupees",
+      explanation: "Profit = 25% of 2,000 = (25 ÷ 100) × 2,000 = ₹500.",
+      topic: "Percentages and profit",
+    },
+    {
+      title: "Plan Your Expenses",
+      icon: "🧮",
+      story: "Your farming expenses include ₹200 fixed costs and ₹5 per seed packet. Your total budget is ₹700.",
+      question: "How many seed packets can you buy? Solve 5x + 200 = 700.",
+      answer: 100,
+      unit: "packets",
+      explanation: "5x + 200 = 700. Subtract 200: 5x = 500. Divide by 5: x = 100.",
+      topic: "Linear equations",
+    },
+    {
+      title: "Plan the Harvest",
+      icon: "🌾",
+      story: "You harvest 1,200 kg of rice. You sell 60% of the harvest to the market.",
+      question: "How many kilograms of rice will you sell?",
+      answer: 720,
+      unit: "kg",
+      explanation: "60% of 1,200 = (60 ÷ 100) × 1,200 = 720 kg.",
+      topic: "Percentages",
+    },
+  ],
+};
+
+// ==================== APP ====================
+
 function App() {
   const [studentName, setStudentName] = useState("");
   const [selectedClass, setSelectedClass] = useState("7");
@@ -65,17 +207,26 @@ function App() {
   const [screen, setScreen] = useState("home");
   const [selectedMission, setSelectedMission] = useState(null);
 
+  // Market states
   const [cart, setCart] = useState({});
   const [payment, setPayment] = useState("");
   const [changeReturned, setChangeReturned] = useState("");
   const [saleComplete, setSaleComplete] = useState(false);
 
+  // Common reward states
   const [coins, setCoins] = useState(0);
   const [stars, setStars] = useState(0);
   const [message, setMessage] = useState("");
   const [orderIndex, setOrderIndex] = useState(0);
   const [completedOrders, setCompletedOrders] = useState(0);
   const [correctChangeOrders, setCorrectChangeOrders] = useState(0);
+
+  // Smart Farming states
+  const [farmChallengeIndex, setFarmChallengeIndex] = useState(0);
+  const [farmAnswer, setFarmAnswer] = useState("");
+  const [farmFeedback, setFarmFeedback] = useState("");
+  const [farmSolved, setFarmSolved] = useState(false);
+  const [farmComplete, setFarmComplete] = useState(false);
 
   const total = vegetables.reduce(
     (sum, item) => sum + item.price * (cart[item.id] || 0),
@@ -91,17 +242,31 @@ function App() {
   const budget = budgets[selectedClass];
   const currentOrder = customerOrders[orderIndex];
 
+  const classChallenges = farmingChallenges[selectedClass];
+  const currentFarmChallenge = classChallenges[farmChallengeIndex];
+
+  // ==================== RESET AND NAVIGATION ====================
+
   function openMission(mission) {
     setSelectedMission(mission);
     setScreen("mission");
+
     setCart({});
     setPayment("");
     setChangeReturned("");
     setSaleComplete(false);
+
     setMessage("");
     setOrderIndex(0);
     setCompletedOrders(0);
     setCorrectChangeOrders(0);
+
+    setFarmChallengeIndex(0);
+    setFarmAnswer("");
+    setFarmFeedback("");
+    setFarmSolved(false);
+    setFarmComplete(false);
+
     setCoins(0);
     setStars(0);
   }
@@ -110,6 +275,8 @@ function App() {
     setScreen("village");
     setSelectedMission(null);
   }
+
+  // ==================== VILLAGE MARKET FUNCTIONS ====================
 
   function addToCart(id) {
     if (saleComplete) return;
@@ -220,10 +387,52 @@ function App() {
     setScreen("rewards");
   }
 
+  // ==================== SMART FARMING FUNCTIONS ====================
+
+  function checkFarmAnswer() {
+    if (farmAnswer.trim() === "") {
+      setFarmFeedback("Please enter your answer first!");
+      return;
+    }
+
+    if (Number(farmAnswer) === currentFarmChallenge.answer) {
+      setFarmSolved(true);
+      setFarmFeedback("Excellent! Your calculation is correct! 🎉");
+      setCoins((previous) => previous + 10);
+      setStars((previous) => previous + 1);
+    } else {
+      setFarmFeedback("Not quite right! Try again. Read the farming information carefully.");
+    }
+  }
+
+  function nextFarmChallenge() {
+    if (farmChallengeIndex < classChallenges.length - 1) {
+      setFarmChallengeIndex((previous) => previous + 1);
+      setFarmAnswer("");
+      setFarmFeedback("");
+      setFarmSolved(false);
+    } else {
+      setFarmComplete(true);
+    }
+  }
+
+  function restartFarm() {
+    setFarmChallengeIndex(0);
+    setFarmAnswer("");
+    setFarmFeedback("");
+    setFarmSolved(false);
+    setFarmComplete(false);
+    setCoins(0);
+    setStars(0);
+  }
+
+  // ==================== RENDER ====================
+
   return (
     <div className="app">
 
       {/* NAVBAR */}
+
       <header className="navbar">
         <div className="logo">
           <span className="logo-icon">🎮</span>
@@ -232,10 +441,12 @@ function App() {
             <p>LEARN • PLAY • GROW</p>
           </div>
         </div>
+
         <div className="offline-tag">● Offline Friendly</div>
       </header>
 
       {/* HOME PAGE */}
+
       {screen === "home" && (
         <main className="home">
           <section className="welcome">
@@ -247,16 +458,19 @@ function App() {
                 adventure. Explore, play games and earn rewards!
               </p>
             </div>
+
             <div className="welcome-art">🌳 🏡 🌾</div>
           </section>
 
           <section className="setup-card">
             <h2>Start Your Adventure</h2>
+
             <p className="section-subtitle">
               Set up your player details before entering the village.
             </p>
 
             <label>Name or Team Name</label>
+
             <input
               value={studentName}
               onChange={(e) => setStudentName(e.target.value)}
@@ -264,11 +478,16 @@ function App() {
             />
 
             <label>Select Your Class</label>
+
             <div className="class-options">
               {["7", "8", "9", "10"].map((grade) => (
                 <button
                   key={grade}
-                  className={selectedClass === grade ? "class-btn active" : "class-btn"}
+                  className={
+                    selectedClass === grade
+                      ? "class-btn active"
+                      : "class-btn"
+                  }
                   onClick={() => setSelectedClass(grade)}
                 >
                   Class {grade}
@@ -277,9 +496,14 @@ function App() {
             </div>
 
             <label>Choose Playing Mode</label>
+
             <div className="mode-options">
               <button
-                className={playMode === "Individual" ? "mode-btn selected" : "mode-btn"}
+                className={
+                  playMode === "Individual"
+                    ? "mode-btn selected"
+                    : "mode-btn"
+                }
                 onClick={() => setPlayMode("Individual")}
               >
                 <span>👤</span>
@@ -288,7 +512,11 @@ function App() {
               </button>
 
               <button
-                className={playMode === "Team" ? "mode-btn selected" : "mode-btn"}
+                className={
+                  playMode === "Team"
+                    ? "mode-btn selected"
+                    : "mode-btn"
+                }
                 onClick={() => setPlayMode("Team")}
               >
                 <span>👥</span>
@@ -308,18 +536,22 @@ function App() {
       )}
 
       {/* VILLAGE MAP */}
+
       {screen === "village" && (
         <main className="village-page">
           <div className="village-heading">
             <span className="eyebrow">
               CLASS {selectedClass} · {playMode.toUpperCase()} MODE
             </span>
+
             <h1>Explore Mission Village 🏡</h1>
+
             <p>Choose a location on the map to begin your adventure.</p>
           </div>
 
           <div className="village-instructions">
             <span>🧭</span>
+
             <div>
               <strong>Your Mission Map</strong>
               <p>Explore all five locations and complete exciting challenges!</p>
@@ -361,6 +593,7 @@ function App() {
       )}
 
       {/* MARKET REWARDS SCREEN */}
+
       {screen === "rewards" && (
         <main className="rewards-page">
           <div className="rewards-trophy">🏆</div>
@@ -413,252 +646,706 @@ function App() {
           </div>
 
           <h3>Your Star Collection</h3>
+
           <div className="reward-progress">
             <div
               className="reward-progress-fill"
               style={{ width: `${(stars / 9) * 100}%` }}
             />
           </div>
+
           <p className="reward-note">{stars} out of 9 stars collected!</p>
 
-          <button
-            className="reward-button"
-            onClick={returnToVillage}
-          >
+          <button className="reward-button" onClick={returnToVillage}>
             Return to Mission Village →
           </button>
         </main>
       )}
 
       {/* MISSION SCREEN */}
+
       {screen === "mission" && selectedMission && (
-        selectedMission.id === 1 ? (
-          <main className="market-page">
-            <div className="market-header">
-              <button className="back-btn" onClick={returnToVillage}>
-                ← Back to Village
-              </button>
-              <p className="eyebrow">MISSION 1 · MATHS</p>
-              <h1>🥕 Village Market</h1>
-              <p>Become the best shopkeeper in the village!</p>
-            </div>
 
-            <div className="market-stats">
-              <div><span>🎓</span><small>Class</small><strong>{selectedClass}</strong></div>
-              <div><span>💰</span><small>Budget</small><strong>₹{budget}</strong></div>
-              <div><span>🪙</span><small>Coins</small><strong>{coins}</strong></div>
-              <div><span>⭐</span><small>Stars</small><strong>{stars}</strong></div>
-              <div><span>🧺</span><small>Basket</small><strong>{itemCount} items</strong></div>
-            </div>
+        <>
+          {/* VILLAGE MARKET */}
 
-            <div className="customer-order">
-              <div className="customer-avatar">🧑‍🌾</div>
-              <div className="customer-details">
-                <span className="eyebrow">CUSTOMER {orderIndex + 1} OF 3</span>
-                <h2>{currentOrder.name} has arrived!</h2>
-                <p>{currentOrder.message}</p>
-                <strong>Shopping List</strong>
-                <div className="order-list">
-                  {currentOrder.request.map((request) => {
-                    const item = vegetables.find((v) => v.id === request.id);
-                    return (
-                      <span className="order-item" key={request.id}>
-                        {item.emoji} {item.name} × {request.quantity}
-                      </span>
-                    );
-                  })}
-                </div>
-                <p className="order-progress">
-                  Orders completed: {completedOrders} / 3
-                </p>
+          {selectedMission.id === 1 && (
+            <main className="market-page">
+              <div className="market-header">
+                <button className="back-btn" onClick={returnToVillage}>
+                  ← Back to Village
+                </button>
+
+                <p className="eyebrow">MISSION 1 · MATHS</p>
+
+                <h1>🥕 Village Market</h1>
+
+                <p>Become the best shopkeeper in the village!</p>
               </div>
-            </div>
 
-            <div className="market-layout">
-              <section className="shop-section">
-                <h2>🛍️ Vegetable Shop</h2>
-                <p className="basket-subtitle">Choose items from the shopping list.</p>
+              <div className="market-stats">
+                <div><span>🎓</span><small>Class</small><strong>{selectedClass}</strong></div>
+                <div><span>💰</span><small>Budget</small><strong>₹{budget}</strong></div>
+                <div><span>🪙</span><small>Coins</small><strong>{coins}</strong></div>
+                <div><span>⭐</span><small>Stars</small><strong>{stars}</strong></div>
+                <div><span>🧺</span><small>Basket</small><strong>{itemCount} items</strong></div>
+              </div>
 
-                <div className="vegetable-grid">
-                  {vegetables.map((item) => {
-                    const request = currentOrder.request.find((r) => r.id === item.id);
-                    const required = request ? request.quantity : 0;
-                    const quantity = cart[item.id] || 0;
+              <div className="customer-order">
+                <div className="customer-avatar">🧑‍🌾</div>
 
-                    return (
-                      <div className="vegetable-card" key={item.id}>
-                        <span className="vegetable-emoji">{item.emoji}</span>
-                        <strong>{item.name}</strong>
-                        <span className="vegetable-price">₹{item.price} / {item.unit}</span>
-                        <small>{required ? `Required: ${required}` : "Not in this order"}</small>
-                        <button
-                          className="add-button"
-                          disabled={saleComplete || !required || quantity >= required}
-                          onClick={() => addToCart(item.id)}
-                        >
-                          {!required ? "Not Required" : quantity >= required ? "Added ✓" : "Add to Basket +"}
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
+                <div className="customer-details">
+                  <span className="eyebrow">
+                    CUSTOMER {orderIndex + 1} OF 3
+                  </span>
 
-              <aside className="basket-section">
-                <h2>🧺 Shopping Basket</h2>
+                  <h2>{currentOrder.name} has arrived!</h2>
+                  <p>{currentOrder.message}</p>
 
-                {itemCount === 0 ? (
-                  <div className="empty-basket">
-                    <span>🧺</span>
-                    <p>Your basket is empty!</p>
-                    <small>Add items from the shop.</small>
+                  <strong>Shopping List</strong>
+
+                  <div className="order-list">
+                    {currentOrder.request.map((request) => {
+                      const item = vegetables.find(
+                        (v) => v.id === request.id
+                      );
+
+                      return (
+                        <span className="order-item" key={request.id}>
+                          {item.emoji} {item.name} × {request.quantity}
+                        </span>
+                      );
+                    })}
                   </div>
-                ) : (
-                  <div className="basket-items">
-                    {vegetables.filter((item) => cart[item.id]).map((item) => (
-                      <div className="basket-item" key={item.id}>
-                        <span className="basket-emoji">{item.emoji}</span>
-                        <div className="basket-item-info">
+
+                  <p className="order-progress">
+                    Orders completed: {completedOrders} / 3
+                  </p>
+                </div>
+              </div>
+
+              <div className="market-layout">
+                <section className="shop-section">
+                  <h2>🛍️ Vegetable Shop</h2>
+
+                  <p className="basket-subtitle">
+                    Choose items from the shopping list.
+                  </p>
+
+                  <div className="vegetable-grid">
+                    {vegetables.map((item) => {
+                      const request = currentOrder.request.find(
+                        (r) => r.id === item.id
+                      );
+
+                      const required = request ? request.quantity : 0;
+                      const quantity = cart[item.id] || 0;
+
+                      return (
+                        <div className="vegetable-card" key={item.id}>
+                          <span className="vegetable-emoji">
+                            {item.emoji}
+                          </span>
+
                           <strong>{item.name}</strong>
-                          <small>₹{item.price} × {cart[item.id]}</small>
-                        </div>
-                        <div className="quantity-controls">
-                          <button disabled={saleComplete} onClick={() => removeFromCart(item.id)}>−</button>
-                          <span>{cart[item.id]}</span>
+
+                          <span className="vegetable-price">
+                            ₹{item.price} / {item.unit}
+                          </span>
+
+                          <small>
+                            {required ? `Required: ${required}` : "Not in this order"}
+                          </small>
+
                           <button
+                            className="add-button"
                             disabled={
                               saleComplete ||
-                              cart[item.id] >= currentOrder.request.find((r) => r.id === item.id).quantity
+                              !required ||
+                              quantity >= required
                             }
                             onClick={() => addToCart(item.id)}
-                          >+</button>
+                          >
+                            {!required
+                              ? "Not Required"
+                              : quantity >= required
+                              ? "Added ✓"
+                              : "Add to Basket +"}
+                          </button>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
-                )}
+                </section>
 
-                <div className="bill-total">
-                  <span>Total Amount</span>
-                  <strong>₹{total}</strong>
-                </div>
+                <aside className="basket-section">
+                  <h2>🧺 Shopping Basket</h2>
 
-                <div className="budget-progress">
-                  <div className="budget-label">
-                    <span>Class budget</span>
-                    <span>₹{budget - total} left</span>
+                  {itemCount === 0 ? (
+                    <div className="empty-basket">
+                      <span>🧺</span>
+                      <p>Your basket is empty!</p>
+                      <small>Add items from the shop.</small>
+                    </div>
+                  ) : (
+                    <div className="basket-items">
+                      {vegetables
+                        .filter((item) => cart[item.id])
+                        .map((item) => (
+                          <div className="basket-item" key={item.id}>
+                            <span className="basket-emoji">
+                              {item.emoji}
+                            </span>
+
+                            <div className="basket-item-info">
+                              <strong>{item.name}</strong>
+                              <small>
+                                ₹{item.price} × {cart[item.id]}
+                              </small>
+                            </div>
+
+                            <div className="quantity-controls">
+                              <button
+                                disabled={saleComplete}
+                                onClick={() => removeFromCart(item.id)}
+                              >
+                                −
+                              </button>
+
+                              <span>{cart[item.id]}</span>
+
+                              <button
+                                disabled={
+                                  saleComplete ||
+                                  cart[item.id] >=
+                                    currentOrder.request.find(
+                                      (r) => r.id === item.id
+                                    ).quantity
+                                }
+                                onClick={() => addToCart(item.id)}
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+
+                  <div className="bill-total">
+                    <span>Total Amount</span>
+                    <strong>₹{total}</strong>
                   </div>
-                  <div className="budget-track">
-                    <div
-                      className="budget-fill"
-                      style={{ width: `${Math.min((total / budget) * 100, 100)}%` }}
-                    />
+
+                  <div className="budget-progress">
+                    <div className="budget-label">
+                      <span>Class budget</span>
+                      <span>₹{budget - total} left</span>
+                    </div>
+
+                    <div className="budget-track">
+                      <div
+                        className="budget-fill"
+                        style={{
+                          width: `${Math.min((total / budget) * 100, 100)}%`,
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <div className="payment-section">
-                  <label>💵 Customer Payment (₹)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    placeholder="Enter payment"
-                    value={payment}
-                    disabled={saleComplete}
-                    onChange={(e) => {
-                      setPayment(e.target.value);
-                      setChangeReturned("");
-                      setMessage("");
-                    }}
-                  />
-                </div>
-
-                {payment !== "" && total > 0 && (
-                  <div className="change-display">
-                    <span>Amount to return</span>
-                    <strong>
-                      {change >= 0 ? `₹${change}` : "Insufficient payment"}
-                    </strong>
-                  </div>
-                )}
-
-                {payment !== "" && total > 0 && change >= 0 && (
                   <div className="payment-section">
-                    <label>🧮 Enter Change You Will Return (₹)</label>
+                    <label>💵 Customer Payment (₹)</label>
+
                     <input
-                      className="change-input"
                       type="number"
                       min="0"
-                      placeholder="Calculate the change"
-                      value={changeReturned}
+                      placeholder="Enter payment"
+                      value={payment}
                       disabled={saleComplete}
                       onChange={(e) => {
-                        setChangeReturned(e.target.value);
+                        setPayment(e.target.value);
+                        setChangeReturned("");
                         setMessage("");
                       }}
                     />
                   </div>
-                )}
 
-                {message && (
-                  <p className={saleComplete ? "success-message" : "error-message"}>
-                    {message}
-                  </p>
-                )}
+                  {payment !== "" && total > 0 && (
+                    <div className="change-display">
+                      <span>Amount to return</span>
+                      <strong>
+                        {change >= 0
+                          ? `₹${change}`
+                          : "Insufficient payment"}
+                      </strong>
+                    </div>
+                  )}
 
-                {!saleComplete && (
-                  <button className="checkout-button" onClick={completeSale}>
-                    Complete Sale ✓
-                  </button>
-                )}
+                  {payment !== "" && total > 0 && change >= 0 && (
+                    <div className="payment-section">
+                      <label>🧮 Enter Change You Will Return (₹)</label>
 
-                {saleComplete && (
-                  <div className="sale-success">
-                    <span>🎉</span>
-                    <h3>Order Completed!</h3>
-                    <p>Correct shopping list and change!</p>
-                    <p>⭐ 3 Stars earned!</p>
-                    <p>🪙 20 Coins earned!</p>
+                      <input
+                        className="change-input"
+                        type="number"
+                        min="0"
+                        placeholder="Calculate the change"
+                        value={changeReturned}
+                        disabled={saleComplete}
+                        onChange={(e) => {
+                          setChangeReturned(e.target.value);
+                          setMessage("");
+                        }}
+                      />
+                    </div>
+                  )}
 
-                    {orderIndex < 2 ? (
-                      <button className="add-button" onClick={serveNextCustomer}>
-                        Serve Next Customer →
-                      </button>
-                    ) : (
-                      <button className="add-button" onClick={openRewards}>
-                        View My Rewards 🏆
-                      </button>
-                    )}
+                  {message && (
+                    <p
+                      className={
+                        saleComplete ? "success-message" : "error-message"
+                      }
+                    >
+                      {message}
+                    </p>
+                  )}
+
+                  {!saleComplete && (
+                    <button
+                      className="checkout-button"
+                      onClick={completeSale}
+                    >
+                      Complete Sale ✓
+                    </button>
+                  )}
+
+                  {saleComplete && (
+                    <div className="sale-success">
+                      <span>🎉</span>
+                      <h3>Order Completed!</h3>
+                      <p>Correct shopping list and change!</p>
+                      <p>⭐ 3 Stars earned!</p>
+                      <p>🪙 20 Coins earned!</p>
+
+                      {orderIndex < 2 ? (
+                        <button
+                          className="add-button"
+                          onClick={serveNextCustomer}
+                        >
+                          Serve Next Customer →
+                        </button>
+                      ) : (
+                        <button
+                          className="add-button"
+                          onClick={openRewards}
+                        >
+                          View My Rewards 🏆
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="market-tip">
+                    💡 <strong>Learning Tip:</strong> Calculate the total
+                    carefully and return the correct change!
                   </div>
-                )}
+                </aside>
+              </div>
+            </main>
+          )}
 
-                <div className="market-tip">
-                  💡 <strong>Learning Tip:</strong> Calculate the total carefully and return the correct change!
+          {/* SMART FARMING */}
+
+          {selectedMission.id === 2 && (
+            <main className="farm-page" style={{ maxWidth: "1100px", margin: "auto", padding: "25px 20px 50px" }}>
+              <button className="back-btn" onClick={returnToVillage}>
+                ← Back to Village
+              </button>
+
+              <div style={{ textAlign: "center", margin: "25px 0" }}>
+                <span className="eyebrow">
+                  MISSION 2 · MATHS + SCIENCE
+                </span>
+
+                <h1 style={{ fontSize: "2.3rem", margin: "12px 0" }}>
+                  🌾 Smart Farming
+                </h1>
+
+                <p>
+                  Welcome to your farm! Make smart decisions, grow healthy
+                  crops and become a farming champion.
+                </p>
+              </div>
+
+              {!farmComplete ? (
+                <>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
+                      gap: "12px",
+                      marginBottom: "25px",
+                    }}
+                  >
+                    <div className="market-stats">
+                      <div>
+                        <span>🎓</span>
+                        <small>Class</small>
+                        <strong>{selectedClass}</strong>
+                      </div>
+                    </div>
+
+                    <div className="market-stats">
+                      <div>
+                        <span>🌱</span>
+                        <small>Level</small>
+                        <strong>{farmChallengeIndex + 1}/3</strong>
+                      </div>
+                    </div>
+
+                    <div className="market-stats">
+                      <div>
+                        <span>🪙</span>
+                        <small>Coins</small>
+                        <strong>{coins}</strong>
+                      </div>
+                    </div>
+
+                    <div className="market-stats">
+                      <div>
+                        <span>⭐</span>
+                        <small>Stars</small>
+                        <strong>{stars}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      background: "#e7f5e9",
+                      padding: "20px",
+                      borderRadius: "16px",
+                      marginBottom: "22px",
+                      textAlign: "center",
+                    }}
+                  >
+                    <div style={{ fontSize: "3rem" }}>👩‍🌾 🌱 🚜</div>
+                    <h2 style={{ color: "#285d36", margin: "8px 0" }}>
+                      Welcome, Farmer!
+                    </h2>
+                    <p style={{ color: "#365b3e" }}>
+                      Your farm is waiting for you. Complete all three
+                      challenges to earn your farming rewards.
+                    </p>
+                  </div>
+
+                  <div
+                    style={{
+                      background: "white",
+                      padding: "25px",
+                      borderRadius: "18px",
+                      boxShadow: "0 4px 18px rgba(0,0,0,0.07)",
+                      border: "1px solid #e5eadf",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                        gap: "10px",
+                      }}
+                    >
+                      <span className="eyebrow">
+                        FARM CHALLENGE {farmChallengeIndex + 1}
+                      </span>
+
+                      <span
+                        style={{
+                          background: "#edf6e9",
+                          color: "#39713b",
+                          padding: "7px 13px",
+                          borderRadius: "20px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {currentFarmChallenge.topic}
+                      </span>
+                    </div>
+
+                    <h2 style={{ marginTop: "18px" }}>
+                      {currentFarmChallenge.icon} {currentFarmChallenge.title}
+                    </h2>
+
+                    <div
+                      style={{
+                        background: "#fff8e8",
+                        padding: "20px",
+                        borderRadius: "12px",
+                        margin: "20px 0",
+                        lineHeight: "1.7",
+                      }}
+                    >
+                      <strong>🌻 Your Farming Situation</strong>
+                      <p style={{ marginTop: "8px" }}>
+                        {currentFarmChallenge.story}
+                      </p>
+                    </div>
+
+                    <h3 style={{ marginBottom: "12px" }}>
+                      🧠 Your Challenge
+                    </h3>
+
+                    <p style={{ fontSize: "1.05rem", lineHeight: "1.6" }}>
+                      {currentFarmChallenge.question}
+                    </p>
+
+                    <div style={{ marginTop: "22px" }}>
+                      <label
+                        style={{
+                          display: "block",
+                          fontWeight: "bold",
+                          marginBottom: "9px",
+                        }}
+                      >
+                        Enter your answer:
+                      </label>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <input
+                          type="number"
+                          min="0"
+                          value={farmAnswer}
+                          disabled={farmSolved}
+                          onChange={(e) => {
+                            setFarmAnswer(e.target.value);
+                            setFarmFeedback("");
+                          }}
+                          placeholder="Enter your answer"
+                          style={{
+                            flex: "1",
+                            minWidth: "160px",
+                            padding: "13px",
+                            border: "1px solid #cbd5c0",
+                            borderRadius: "9px",
+                            fontSize: "1rem",
+                          }}
+                        />
+
+                        <span
+                          style={{
+                            alignSelf: "center",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {currentFarmChallenge.unit}
+                        </span>
+                      </div>
+                    </div>
+
+                    {farmFeedback && (
+                      <div
+                        style={{
+                          marginTop: "18px",
+                          padding: "15px",
+                          borderRadius: "10px",
+                          background: farmSolved ? "#e7f7e9" : "#fff3df",
+                          color: farmSolved ? "#236b35" : "#875b16",
+                          lineHeight: "1.6",
+                        }}
+                      >
+                        <strong>{farmFeedback}</strong>
+                      </div>
+                    )}
+
+                    {farmSolved && (
+                      <div
+                        style={{
+                          marginTop: "15px",
+                          padding: "16px",
+                          background: "#f0f7eb",
+                          borderRadius: "10px",
+                          lineHeight: "1.7",
+                        }}
+                      >
+                        <strong>📘 Let's understand:</strong>
+                        <p>{currentFarmChallenge.explanation}</p>
+                        <p style={{ marginTop: "8px" }}>
+                          🪙 10 coins earned!
+                        </p>
+                        <p>⭐ 1 star earned!</p>
+                      </div>
+                    )}
+
+                    <div style={{ marginTop: "22px" }}>
+                      {!farmSolved ? (
+                        <button
+                          className="start-btn"
+                          onClick={checkFarmAnswer}
+                          style={{ width: "100%" }}
+                        >
+                          Check My Answer ✓
+                        </button>
+                      ) : (
+                        <button
+                          className="start-btn"
+                          onClick={nextFarmChallenge}
+                          style={{ width: "100%" }}
+                        >
+                          {farmChallengeIndex === 2
+                            ? "Complete My Farm 🏆"
+                            : "Next Farming Challenge →"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: "20px",
+                      textAlign: "center",
+                      color: "#63705e",
+                    }}
+                  >
+                    <p>
+                      💡 Think carefully, calculate correctly and learn
+                      something new with every challenge!
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <div
+                  style={{
+                    maxWidth: "700px",
+                    margin: "35px auto",
+                    padding: "35px 25px",
+                    background: "#f0f8ec",
+                    borderRadius: "20px",
+                    textAlign: "center",
+                    border: "1px solid #d7e9ce",
+                  }}
+                >
+                  <div style={{ fontSize: "5rem" }}>🏆</div>
+
+                  <span className="eyebrow">MISSION COMPLETED</span>
+
+                  <h1 style={{ color: "#32663c", margin: "12px 0" }}>
+                    Farming Champion!
+                  </h1>
+
+                  <p style={{ lineHeight: "1.7" }}>
+                    Amazing work
+                    {studentName.trim() ? `, ${studentName}` : ""}!
+                    You successfully completed all three farming challenges.
+                  </p>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      gap: "18px",
+                      flexWrap: "wrap",
+                      margin: "25px 0",
+                    }}
+                  >
+                    <div className="reward-stat">
+                      <strong>🪙 {coins}</strong>
+                      Coins Earned
+                    </div>
+
+                    <div className="reward-stat">
+                      <strong>⭐ {stars}</strong>
+                      Stars Earned
+                    </div>
+
+                    <div className="reward-stat">
+                      <strong>✅ 3/3</strong>
+                      Challenges
+                    </div>
+                  </div>
+
+                  <h3>🏅 Achievement Unlocked</h3>
+
+                  <div
+                    style={{
+                      background: "white",
+                      padding: "18px",
+                      borderRadius: "12px",
+                      margin: "15px 0 25px",
+                    }}
+                  >
+                    <div style={{ fontSize: "2.5rem" }}>🌾</div>
+                    <strong>Smart Farmer</strong>
+                    <p>Completed all three farming challenges!</p>
+                  </div>
+
+                  <button
+                    className="start-btn"
+                    onClick={returnToVillage}
+                    style={{ width: "100%", marginBottom: "12px" }}
+                  >
+                    Return to Mission Village →
+                  </button>
+
+                  <button
+                    className="back-btn"
+                    onClick={restartFarm}
+                  >
+                    Play Smart Farming Again ↻
+                  </button>
                 </div>
-              </aside>
-            </div>
-          </main>
-        ) : (
-          <main className="mission-detail">
-            <button className="back-btn" onClick={returnToVillage}>← Back to Village</button>
-            <span className="large-mission-icon">{selectedMission.icon}</span>
-            <span className="eyebrow">MISSION {selectedMission.id}</span>
-            <h1>{selectedMission.name}</h1>
-            <p>{selectedMission.description}</p>
-            <div className="coming-soon">
-              <h2>🚧 Interactive Game Coming Next!</h2>
-              <p>We are building this village adventure for you.</p>
-            </div>
-            <button className="start-btn" onClick={returnToVillage}>
-              Explore Other Missions
-            </button>
-          </main>
-        )
+              )}
+            </main>
+          )}
+
+          {/* OTHER MISSIONS */}
+
+          {[3, 4, 5].includes(selectedMission.id) && (
+            <main className="mission-detail">
+              <button className="back-btn" onClick={returnToVillage}>
+                ← Back to Village
+              </button>
+
+              <span className="large-mission-icon">
+                {selectedMission.icon}
+              </span>
+
+              <span className="eyebrow">
+                MISSION {selectedMission.id}
+              </span>
+
+              <h1>{selectedMission.name}</h1>
+
+              <p>{selectedMission.description}</p>
+
+              <div className="coming-soon">
+                <h2>🚧 Interactive Game Coming Next!</h2>
+                <p>We are building this village adventure for you.</p>
+              </div>
+
+              <button className="start-btn" onClick={returnToVillage}>
+                Explore Other Missions
+              </button>
+            </main>
+          )}
+        </>
       )}
+
+      {/* FOOTER */}
 
       <footer>
         <strong>GyaanQuest – Learn • Play • Grow</strong>
         <br />
-        <small>Turning everyday village life into an interactive classroom.</small>
+        <small>
+          Turning everyday village life into an interactive classroom.
+        </small>
       </footer>
     </div>
   );
