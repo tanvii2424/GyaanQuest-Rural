@@ -2059,3 +2059,7 @@ button:disabled {
 .game-page button:not(.back-btn):not(.primary-btn) {
   color: #263b2b;
 }
+.quiz-question {
+  color: #263b2b !important;
+  font-weight: 900 !important;
+}

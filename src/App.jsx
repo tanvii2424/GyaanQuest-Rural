@@ -185,7 +185,6 @@ function loadSavedProgress() {
 function App() {
   const [savedProgress] = useState(loadSavedProgress);
 
-  // FIX 1: Restore the dashboard when saved student details exist.
   const [page, setPage] = useState(() =>
     savedProgress.studentName ? "dashboard" : "welcome"
   );
@@ -219,7 +218,6 @@ function App() {
 
   const settings = gradeSettings[grade];
 
-  // Save student progress whenever any saved value changes.
   useEffect(() => {
     const progressData = {
       studentName,
@@ -1428,8 +1426,6 @@ function QuizPage({ mission, grade, questions, onComplete, onContinue }) {
       setSelected("");
       setChecked(false);
     } else {
-      // FIX 2: Include the current answer because React state
-      // may not have updated the score before this function runs.
       const totalCorrect =
         score + (selected === currentQuestion.answer ? 1 : 0);
 
@@ -1480,7 +1476,17 @@ function QuizPage({ mission, grade, questions, onComplete, onContinue }) {
               />
             </div>
 
-            <h2 style={{ fontSize: "clamp(19px, 3vw, 25px)", lineHeight: 1.5, marginBottom: "22px" }}>
+            {/* Quiz question colour fix */}
+            <h2
+              className="quiz-question"
+              style={{
+                fontSize: "clamp(19px, 3vw, 25px)",
+                lineHeight: 1.5,
+                marginBottom: "22px",
+                color: "#263b2b",
+                fontWeight: 900,
+              }}
+            >
               {currentQuestion.text}
             </h2>
 
