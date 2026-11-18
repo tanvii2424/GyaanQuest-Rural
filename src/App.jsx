@@ -47,12 +47,10 @@ function getQuizQuestions(missionId, grade) {
     return {
       text,
       answer,
-      options: options.sort((a, b) => {
-        return (
-          (a.length + a.charCodeAt(0)) % 3 -
-          ((b.length + b.charCodeAt(0)) % 3)
-        );
-      }),
+      options: options.sort((a, b) =>
+        (a.length + a.charCodeAt(0)) % 3 -
+        ((b.length + b.charCodeAt(0)) % 3)
+      ),
     };
   }
 
@@ -171,54 +169,77 @@ function getQuizQuestions(missionId, grade) {
   ];
 }
 
-const STORAGE_KEY = "gyaanquest-saved-progress";
+// MULTIPLE STUDENT ACCOUNT STORAGE
+const STORAGE_KEY = "gyaanquest-student-accounts";
+const OLD_STORAGE_KEY = "gyaanquest-saved-progress";
 
-function loadSavedProgress() {
+function getUserKey(name, grade) {
+  return `${name.trim().toLowerCase()}-${grade}`;
+}
+
+function loadAccounts() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : {};
+
+    if (saved) {
+      return JSON.parse(saved);
+    }
+
+    // Restore the previous single-student progress
+    const oldData = localStorage.getItem(OLD_STORAGE_KEY);
+
+    if (oldData) {
+      const oldStudent = JSON.parse(oldData);
+
+      if (oldStudent.studentName) {
+        const key = getUserKey(
+          oldStudent.studentName,
+          oldStudent.grade || "7"
+        );
+
+        return { [key]: oldStudent };
+      }
+    }
+
+    return {};
   } catch {
     return {};
   }
 }
 
 function App() {
-  const [savedProgress] = useState(loadSavedProgress);
+  const [accounts, setAccounts] = useState(loadAccounts);
 
-  const [page, setPage] = useState(() =>
-    savedProgress.studentName ? "dashboard" : "welcome"
-  );
+  const [page, setPage] = useState("welcome");
+  const [currentUserKey, setCurrentUserKey] = useState("");
 
-  const [studentName, setStudentName] = useState(
-    () => savedProgress.studentName || ""
-  );
-  const [grade, setGrade] = useState(
-    () => savedProgress.grade || "7"
-  );
-  const [mode, setMode] = useState(
-    () => savedProgress.mode || "individual"
-  );
-  const [teamMembers, setTeamMembers] = useState(
-    () => savedProgress.teamMembers || 3
-  );
+  const [studentName, setStudentName] = useState("");
+  const [grade, setGrade] = useState("7");
+  const [mode, setMode] = useState("individual");
+  const [teamMembers, setTeamMembers] = useState(3);
+
   const [activeMission, setActiveMission] = useState(null);
-  const [coins, setCoins] = useState(
-    () => savedProgress.coins ?? 500
-  );
-  const [stars, setStars] = useState(
-    () => savedProgress.stars ?? 0
-  );
-  const [completed, setCompleted] = useState(
-    () => savedProgress.completed || []
-  );
+  const [coins, setCoins] = useState(500);
+  const [stars, setStars] = useState(0);
+  const [completed, setCompleted] = useState([]);
   const [lastResult, setLastResult] = useState(null);
-  const [quizResults, setQuizResults] = useState(
-    () => savedProgress.quizResults || []
-  );
+  const [quizResults, setQuizResults] = useState([]);
 
   const settings = gradeSettings[grade];
 
+  // Save all student accounts
   useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts));
+    } catch (error) {
+      console.error("Unable to save student accounts:", error);
+    }
+  }, [accounts]);
+
+  // Save the currently logged-in student's progress
+  useEffect(() => {
+    if (!currentUserKey) return;
+
     const progressData = {
       studentName,
       grade,
@@ -230,15 +251,12 @@ function App() {
       quizResults,
     };
 
-    try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(progressData)
-      );
-    } catch (error) {
-      console.error("Unable to save progress:", error);
-    }
+    setAccounts((current) => ({
+      ...current,
+      [currentUserKey]: progressData,
+    }));
   }, [
+    currentUserKey,
     studentName,
     grade,
     mode,
@@ -250,15 +268,87 @@ function App() {
   ]);
 
   function startSetup() {
+    setStudentName("");
+    setGrade("7");
+    setMode("individual");
+    setTeamMembers(3);
     setPage("setup");
   }
 
   function enterVillage() {
     if (!studentName.trim()) {
-      alert("Please enter your name to continue!");
+      alert("Please enter your name!");
       return;
     }
+
+    const key = getUserKey(studentName, grade);
+
+    if (accounts[key]) {
+      alert("This account already exists. Please login instead.");
+      setPage("login");
+      return;
+    }
+
+    const newAccount = {
+      studentName: studentName.trim(),
+      grade,
+      mode,
+      teamMembers,
+      coins: 500,
+      stars: 0,
+      completed: [],
+      quizResults: [],
+    };
+
+    setAccounts((current) => ({
+      ...current,
+      [key]: newAccount,
+    }));
+
+    setCurrentUserKey(key);
+    setCoins(500);
+    setStars(0);
+    setCompleted([]);
+    setQuizResults([]);
+    setActiveMission(null);
+    setLastResult(null);
     setPage("dashboard");
+  }
+
+  function loginStudent(name, selectedGrade) {
+    if (!name.trim()) {
+      alert("Please enter your name!");
+      return;
+    }
+
+    const key = getUserKey(name, selectedGrade);
+    const account = accounts[key];
+
+    if (!account) {
+      alert("Account not found. Please create a new account first.");
+      return;
+    }
+
+    setStudentName(account.studentName);
+    setGrade(account.grade);
+    setMode(account.mode || "individual");
+    setTeamMembers(account.teamMembers || 3);
+    setCoins(account.coins ?? 500);
+    setStars(account.stars ?? 0);
+    setCompleted(account.completed || []);
+    setQuizResults(account.quizResults || []);
+
+    setCurrentUserKey(key);
+    setActiveMission(null);
+    setLastResult(null);
+    setPage("dashboard");
+  }
+
+  function switchAccount() {
+    setCurrentUserKey("");
+    setActiveMission(null);
+    setLastResult(null);
+    setPage("welcome");
   }
 
   function openMission(mission) {
@@ -319,16 +409,30 @@ function App() {
             <p>LEARN • PLAY • GROW</p>
           </div>
         </div>
+
         <div className="gq-header-right">
           <span className="offline-pill">● Offline Friendly</span>
-          {page !== "welcome" && page !== "setup" && (
+
+          {page !== "welcome" && page !== "setup" && page !== "login" && (
             <span className="coin-pill">🪙 {coins}</span>
           )}
         </div>
       </header>
 
       <main className="gq-shell">
-        {page === "welcome" && <WelcomePage onStart={startSetup} />}
+        {page === "welcome" && (
+          <WelcomePage
+            onStart={startSetup}
+            onLogin={() => setPage("login")}
+          />
+        )}
+
+        {page === "login" && (
+          <LoginPage
+            onLogin={loginStudent}
+            onBack={() => setPage("welcome")}
+          />
+        )}
 
         {page === "setup" && (
           <SetupPage
@@ -355,6 +459,7 @@ function App() {
             completed={completed}
             onOpenMission={openMission}
             onOpenProgress={() => setPage("progress")}
+            onSwitchAccount={switchAccount}
           />
         )}
 
@@ -471,7 +576,7 @@ function App() {
   );
 }
 
-function WelcomePage({ onStart }) {
+function WelcomePage({ onStart, onLogin }) {
   return (
     <section className="welcome-page">
       <div className="welcome-art">
@@ -490,8 +595,17 @@ function WelcomePage({ onStart }) {
           exciting learning adventures. Explore your village, solve problems
           and make a difference!
         </p>
+
         <button className="primary-btn" onClick={onStart}>
-          Enter Mission Village <span>→</span>
+          Create New Student Account →
+        </button>
+
+        <button
+          className="secondary-btn"
+          style={{ marginTop: "14px" }}
+          onClick={onLogin}
+        >
+          Already have an account? Login →
         </button>
       </div>
 
@@ -511,6 +625,59 @@ function WelcomePage({ onStart }) {
           <h3>Achieve</h3>
           <p>Earn rewards as you complete missions.</p>
         </div>
+      </div>
+    </section>
+  );
+}
+
+function LoginPage({ onLogin, onBack }) {
+  const [name, setName] = useState("");
+  const [grade, setGrade] = useState("7");
+
+  return (
+    <section className="setup-page">
+      <button className="back-btn" onClick={onBack}>
+        ← Back
+      </button>
+
+      <div className="section-heading">
+        <span className="eyebrow">WELCOME BACK</span>
+        <h1>Login to GyaanQuest 👋</h1>
+        <p>Enter your registered student details.</p>
+      </div>
+
+      <div className="setup-card">
+        <label>Student name</label>
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Enter your registered name"
+          maxLength={30}
+        />
+
+        <label>Choose your class</label>
+        <div className="grade-grid">
+          {[7, 8, 9, 10].map((number) => (
+            <button
+              key={number}
+              className={`grade-btn ${grade === String(number) ? "selected" : ""}`}
+              onClick={() => setGrade(String(number))}
+            >
+              Class {number}
+            </button>
+          ))}
+        </div>
+
+        <button
+          className="primary-btn full-btn"
+          onClick={() => onLogin(name, grade)}
+        >
+          Login to My Village →
+        </button>
+
+        <p style={{ marginTop: "16px", textAlign: "center" }}>
+          Use the same name and class you registered with.
+        </p>
       </div>
     </section>
   );
@@ -567,6 +734,7 @@ function SetupPage({
             <strong>Individual Play</strong>
             <small>Play on your own</small>
           </button>
+
           <button
             className={`mode-card ${mode === "team" ? "selected" : ""}`}
             onClick={() => setMode("team")}
@@ -595,7 +763,7 @@ function SetupPage({
         )}
 
         <button className="primary-btn full-btn" onClick={onContinue}>
-          Let's Explore! →
+          Create Account & Explore! →
         </button>
       </div>
     </section>
@@ -612,6 +780,7 @@ function Dashboard({
   completed,
   onOpenMission,
   onOpenProgress,
+  onSwitchAccount,
 }) {
   return (
     <section className="dashboard-page">
@@ -622,6 +791,7 @@ function Dashboard({
           <p>
             Class {grade} · {mode === "team" ? `Team of ${teamMembers}` : "Individual Player"}
           </p>
+
           <button
             className="primary-btn"
             style={{ marginTop: "16px" }}
@@ -629,7 +799,16 @@ function Dashboard({
           >
             📊 My Progress →
           </button>
+
+          <button
+            className="back-btn"
+            style={{ display: "block", marginTop: "12px" }}
+            onClick={onSwitchAccount}
+          >
+            ⇄ Switch Student Account
+          </button>
         </div>
+
         <div className="dashboard-avatar">🧑‍🌾</div>
       </div>
 
@@ -664,12 +843,14 @@ function Dashboard({
             <h3>{mission.name}</h3>
             <span className="subject-tag">{mission.subject}</span>
             <p>{mission.description}</p>
+
             <div className="mission-bottom">
               {completed.includes(mission.id) ? (
                 <span className="completed-label">✓ Completed</span>
               ) : (
                 <span className="new-label">Ready to explore</span>
               )}
+
               <button onClick={() => onOpenMission(mission)}>
                 {completed.includes(mission.id) ? "Play Again ↗" : "Explore Mission →"}
               </button>
@@ -684,6 +865,7 @@ function Dashboard({
           <h2>What Will You Discover?</h2>
           <p>Every mission connects classroom learning with real village life.</p>
         </div>
+
         <div className="topic-grid">
           <div className="topic-card">
             <span>🌾</span>
@@ -727,52 +909,23 @@ function ProgressPage({
   );
 
   const totalQuestions = quizResults.length * 5;
-
-  const average =
-    totalQuestions === 0
-      ? 0
-      : Math.round((totalCorrect / totalQuestions) * 100);
+  const average = totalQuestions === 0
+    ? 0
+    : Math.round((totalCorrect / totalQuestions) * 100);
 
   const level = Math.floor(stars / 3) + 1;
 
   const badges = [
-    {
-      icon: "🌾",
-      name: "Farm Explorer",
-      description: "Complete Smart Farming",
-      unlocked: completed.includes("farm"),
-    },
-    {
-      icon: "💧",
-      name: "Water Guardian",
-      description: "Complete Save Every Drop",
-      unlocked: completed.includes("water"),
-    },
-    {
-      icon: "🚌",
-      name: "Transport Manager",
-      description: "Complete Village Bus Stand",
-      unlocked: completed.includes("bus"),
-    },
-    {
-      icon: "🧠",
-      name: "Quiz Champion",
-      description: "Get a perfect quiz score",
-      unlocked: quizResults.some((quiz) => quiz.score === 5),
-    },
-    {
-      icon: "🏆",
-      name: "Village Hero",
-      description: "Complete all three missions",
-      unlocked: completed.length === 3,
-    },
+    { icon: "🌾", name: "Farm Explorer", description: "Complete Smart Farming", unlocked: completed.includes("farm") },
+    { icon: "💧", name: "Water Guardian", description: "Complete Save Every Drop", unlocked: completed.includes("water") },
+    { icon: "🚌", name: "Transport Manager", description: "Complete Village Bus Stand", unlocked: completed.includes("bus") },
+    { icon: "🧠", name: "Quiz Champion", description: "Get a perfect quiz score", unlocked: quizResults.some((quiz) => quiz.score === 5) },
+    { icon: "🏆", name: "Village Hero", description: "Complete all three missions", unlocked: completed.length === 3 },
   ];
 
   return (
     <section className="progress-page">
-      <button className="back-btn" onClick={onBack}>
-        ← Back to Village
-      </button>
+      <button className="back-btn" onClick={onBack}>← Back to Village</button>
 
       <div className="section-heading">
         <span className="eyebrow">YOUR LEARNING JOURNEY</span>
@@ -780,61 +933,20 @@ function ProgressPage({
         <p>Look how far you've come, {studentName}!</p>
       </div>
 
-      <div
-        className="task-card"
-        style={{
-          maxWidth: "850px",
-          margin: "0 auto 24px",
-          textAlign: "center",
-          padding: "28px",
-        }}
-      >
+      <div className="task-card" style={{ maxWidth: "850px", margin: "0 auto 24px", textAlign: "center", padding: "28px" }}>
         <div style={{ fontSize: "48px" }}>🌟</div>
         <h2 style={{ margin: "8px 0" }}>Level {level} Adventurer</h2>
         <p>Class {grade} · Keep learning and growing!</p>
-        <div
-          style={{
-            height: "12px",
-            background: "#e8eadc",
-            borderRadius: "20px",
-            marginTop: "18px",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              width: `${(stars % 3) * 33.33}%`,
-              height: "100%",
-              background: "#d5a83e",
-              borderRadius: "20px",
-            }}
-          />
+        <div style={{ height: "12px", background: "#e8eadc", borderRadius: "20px", marginTop: "18px", overflow: "hidden" }}>
+          <div style={{ width: `${(stars % 3) * 33.33}%`, height: "100%", background: "#d5a83e", borderRadius: "20px" }} />
         </div>
         <small>{stars % 3} / 3 stars towards your next level</small>
       </div>
 
       <div className="stats-grid">
-        <div className="stat-card">
-          <span>🪙</span>
-          <div>
-            <strong>{coins}</strong>
-            <small>Total Coins</small>
-          </div>
-        </div>
-        <div className="stat-card">
-          <span>⭐</span>
-          <div>
-            <strong>{stars}</strong>
-            <small>Stars Earned</small>
-          </div>
-        </div>
-        <div className="stat-card">
-          <span>🏅</span>
-          <div>
-            <strong>{completed.length}/3</strong>
-            <small>Missions Completed</small>
-          </div>
-        </div>
+        <div className="stat-card"><span>🪙</span><div><strong>{coins}</strong><small>Total Coins</small></div></div>
+        <div className="stat-card"><span>⭐</span><div><strong>{stars}</strong><small>Stars Earned</small></div></div>
+        <div className="stat-card"><span>🏅</span><div><strong>{completed.length}/3</strong><small>Missions Completed</small></div></div>
       </div>
 
       <div className="task-card" style={{ maxWidth: "850px", margin: "24px auto" }}>
@@ -842,65 +954,22 @@ function ProgressPage({
         <h2 style={{ margin: "8px 0 18px" }}>Your Learning Score 🧠</h2>
 
         <div className="stats-grid">
-          <div className="stat-card">
-            <span>📝</span>
-            <div>
-              <strong>{quizResults.length}</strong>
-              <small>Quizzes Taken</small>
-            </div>
-          </div>
-          <div className="stat-card">
-            <span>✅</span>
-            <div>
-              <strong>{totalCorrect}/{totalQuestions}</strong>
-              <small>Correct Answers</small>
-            </div>
-          </div>
-          <div className="stat-card">
-            <span>📈</span>
-            <div>
-              <strong>{average}%</strong>
-              <small>Average Accuracy</small>
-            </div>
-          </div>
+          <div className="stat-card"><span>📝</span><div><strong>{quizResults.length}</strong><small>Quizzes Taken</small></div></div>
+          <div className="stat-card"><span>✅</span><div><strong>{totalCorrect}/{totalQuestions}</strong><small>Correct Answers</small></div></div>
+          <div className="stat-card"><span>📈</span><div><strong>{average}%</strong><small>Average Accuracy</small></div></div>
         </div>
 
         <div style={{ marginTop: "22px" }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: "8px",
-              fontWeight: 700,
-            }}
-          >
-            <span>Overall quiz accuracy</span>
-            <span>{average}%</span>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontWeight: 700 }}>
+            <span>Overall quiz accuracy</span><span>{average}%</span>
           </div>
-          <div
-            style={{
-              height: "13px",
-              background: "#e8eadc",
-              borderRadius: "20px",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                width: `${average}%`,
-                height: "100%",
-                background: "#72945a",
-                borderRadius: "20px",
-                transition: "width 0.4s ease",
-              }}
-            />
+          <div style={{ height: "13px", background: "#e8eadc", borderRadius: "20px", overflow: "hidden" }}>
+            <div style={{ width: `${average}%`, height: "100%", background: "#72945a", borderRadius: "20px", transition: "width 0.4s ease" }} />
           </div>
         </div>
 
         {quizResults.length === 0 && (
-          <p style={{ marginTop: "18px" }}>
-            Complete a mission quiz to see your quiz performance here!
-          </p>
+          <p style={{ marginTop: "18px" }}>Complete a mission quiz to see your quiz performance here!</p>
         )}
       </div>
 
@@ -910,35 +979,19 @@ function ProgressPage({
 
         <div className="topic-grid">
           {badges.map((badge) => (
-            <div
-              className="topic-card"
-              key={badge.name}
-              style={{
-                opacity: badge.unlocked ? 1 : 0.5,
-                border: badge.unlocked
-                  ? "2px solid #d5a83e"
-                  : "1px solid #e0e2d6",
-              }}
-            >
-              <span style={{ fontSize: "32px" }}>
-                {badge.unlocked ? badge.icon : "🔒"}
-              </span>
+            <div className="topic-card" key={badge.name} style={{ opacity: badge.unlocked ? 1 : 0.5, border: badge.unlocked ? "2px solid #d5a83e" : "1px solid #e0e2d6" }}>
+              <span style={{ fontSize: "32px" }}>{badge.unlocked ? badge.icon : "🔒"}</span>
               <div>
                 <strong>{badge.name}</strong>
                 <p>{badge.description}</p>
-                <small style={{ fontWeight: 700 }}>
-                  {badge.unlocked ? "✓ Unlocked" : "Not unlocked yet"}
-                </small>
+                <small style={{ fontWeight: 700 }}>{badge.unlocked ? "✓ Unlocked" : "Not unlocked yet"}</small>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div
-        className="learning-result-card"
-        style={{ maxWidth: "850px", margin: "24px auto", textAlign: "center" }}
-      >
+      <div className="learning-result-card" style={{ maxWidth: "850px", margin: "24px auto", textAlign: "center" }}>
         <div style={{ fontSize: "38px" }}>🌱</div>
         <h2>Every Step Counts!</h2>
         <p>
@@ -948,11 +1001,7 @@ function ProgressPage({
         </p>
       </div>
 
-      <button
-        className="primary-btn full-btn"
-        style={{ maxWidth: "850px", display: "block", margin: "20px auto" }}
-        onClick={onBack}
-      >
+      <button className="primary-btn full-btn" style={{ maxWidth: "850px", display: "block", margin: "20px auto" }} onClick={onBack}>
         Continue Exploring the Village →
       </button>
     </section>
@@ -973,10 +1022,7 @@ function MissionIntro({ mission, onStart, onBack }) {
       <p>{mission.description}</p>
       <div className="challenge-box">
         <span>🎯 YOUR CHALLENGE</span>
-        <p>
-          The village is counting on you! Explore the situation, make smart
-          decisions and complete your mission.
-        </p>
+        <p>The village is counting on you! Explore the situation, make smart decisions and complete your mission.</p>
       </div>
       <button className="primary-btn" onClick={onStart}>Start Mission →</button>
     </section>
@@ -1037,12 +1083,7 @@ function FarmingGame({ settings, onFinish, onBack }) {
         <div className="scene-title">YOUR FARM</div>
         <div className="farm-plots">
           {plots.map((stage, index) => (
-            <button
-              key={index}
-              className={`farm-plot stage-${stage}`}
-              onClick={() => workOnPlot(index)}
-              disabled={stage === 3}
-            >
+            <button key={index} className={`farm-plot stage-${stage}`} onClick={() => workOnPlot(index)} disabled={stage === 3}>
               <span>{stage === 0 ? "🟫" : stage === 1 ? "🌱" : stage === 2 ? "🌿" : "🌾"}</span>
               <small>{stage === 0 ? "Plant" : stage === 1 ? "Water" : stage === 2 ? "Harvest" : "Done"}</small>
             </button>
@@ -1061,9 +1102,7 @@ function FarmingGame({ settings, onFinish, onBack }) {
         <h3>🚜 How to play</h3>
         <p>Tap an empty plot to plant a seed. Tap it again to water it. Tap the growing crop to harvest it.</p>
         <div className="notice">{message}</div>
-        <button className="primary-btn full-btn" onClick={finish}>
-          Collect Farm Reward →
-        </button>
+        <button className="primary-btn full-btn" onClick={finish}>Collect Farm Reward →</button>
       </div>
     </section>
   );
@@ -1099,10 +1138,12 @@ function WaterGame({ settings, onFinish, onBack }) {
 
   function finish() {
     const allEqual = allocation.every((value) => value === targetEach);
+
     if (!leakFixed || !rainCollected || allocated !== total || !allEqual) {
       setMessage("Complete all tasks and distribute the water equally before finishing.");
       return;
     }
+
     onFinish(3);
   }
 
@@ -1127,14 +1168,10 @@ function WaterGame({ settings, onFinish, onBack }) {
           <strong>{leakFixed ? "✓ Completed" : "Fix the leaking pipe"}</strong>
         </div>
         <p>A village pipe is wasting water. Stop the leak to protect the supply.</p>
-        <button
-          className={leakFixed ? "success-btn" : "secondary-btn"}
-          onClick={() => {
-            setLeakFixed(true);
-            setMessage("Leak fixed! Now collect rainwater. 🌧️");
-          }}
-          disabled={leakFixed}
-        >
+        <button className={leakFixed ? "success-btn" : "secondary-btn"} onClick={() => {
+          setLeakFixed(true);
+          setMessage("Leak fixed! Now collect rainwater. 🌧️");
+        }} disabled={leakFixed}>
           {leakFixed ? "Pipe Repaired ✓" : "🔧 Repair Pipe"}
         </button>
       </div>
@@ -1145,14 +1182,10 @@ function WaterGame({ settings, onFinish, onBack }) {
           <strong>{rainCollected ? "✓ Completed" : "Collect rainwater"}</strong>
         </div>
         <p>Rainwater can help the village. Collect it for the community.</p>
-        <button
-          className={rainCollected ? "success-btn" : "secondary-btn"}
-          onClick={() => {
-            setRainCollected(true);
-            setMessage("Rainwater collected! Now share the water fairly. 💧");
-          }}
-          disabled={!leakFixed || rainCollected}
-        >
+        <button className={rainCollected ? "success-btn" : "secondary-btn"} onClick={() => {
+          setRainCollected(true);
+          setMessage("Rainwater collected! Now share the water fairly. 💧");
+        }} disabled={!leakFixed || rainCollected}>
           {rainCollected ? "Rainwater Collected ✓" : "🪣 Collect Water"}
         </button>
       </div>
@@ -1163,13 +1196,13 @@ function WaterGame({ settings, onFinish, onBack }) {
           <strong>Share the water fairly</strong>
         </div>
         <p>
-          You have <strong>{total} litres</strong> of water. Give each place
-          exactly <strong>{targetEach} litres</strong>.
+          You have <strong>{total} litres</strong> of water. Give each place exactly <strong>{targetEach} litres</strong>.
         </p>
         <div className="water-counter">
           <span>Remaining water</span>
           <strong>{remaining} L</strong>
         </div>
+
         {places.map((place, index) => (
           <div className="allocation-row" key={place}>
             <div className="allocation-label">
@@ -1185,15 +1218,12 @@ function WaterGame({ settings, onFinish, onBack }) {
             </div>
           </div>
         ))}
+
         <div className="allocation-total">
           Total distributed: <strong>{allocated} / {total} L</strong>
         </div>
         <div className="notice">{message}</div>
-        <button
-          className="primary-btn full-btn"
-          onClick={finish}
-          disabled={!leakFixed || !rainCollected}
-        >
+        <button className="primary-btn full-btn" onClick={finish} disabled={!leakFixed || !rainCollected}>
           Complete Water Mission →
         </button>
       </div>
@@ -1271,14 +1301,10 @@ function BusGame({ settings, onFinish, onBack }) {
         <p>Where should your bus travel today?</p>
         <div className="route-grid">
           {["Village → School", "Village → Market", "Village → Hospital"].map((item) => (
-            <button
-              key={item}
-              className={`route-btn ${route === item ? "selected" : ""}`}
-              onClick={() => {
-                setRoute(item);
-                setMessage(`Route selected: ${item}`);
-              }}
-            >
+            <button key={item} className={`route-btn ${route === item ? "selected" : ""}`} onClick={() => {
+              setRoute(item);
+              setMessage(`Route selected: ${item}`);
+            }}>
               {item}
             </button>
           ))}
@@ -1298,11 +1324,7 @@ function BusGame({ settings, onFinish, onBack }) {
         <div className="capacity-bar">
           <div style={{ width: `${(passengers / capacity) * 100}%` }} />
         </div>
-        <button
-          className="secondary-btn"
-          onClick={boardPassenger}
-          disabled={passengers >= capacity}
-        >
+        <button className="secondary-btn" onClick={boardPassenger} disabled={passengers >= capacity}>
           + Board Passenger
         </button>
       </div>
@@ -1312,24 +1334,10 @@ function BusGame({ settings, onFinish, onBack }) {
           <span>STEP 3</span>
           <strong>Issue tickets</strong>
         </div>
-        <p>
-          Adult fare: ₹{settings.fare}. Student fare: ₹{Math.ceil(settings.fare / 2)}.
-        </p>
+        <p>Adult fare: ₹{settings.fare}. Student fare: ₹{Math.ceil(settings.fare / 2)}.</p>
         <div className="ticket-buttons">
-          <button
-            className="ticket-btn"
-            onClick={() => issueTicket("adult")}
-            disabled={totalTickets >= passengers}
-          >
-            🎟️ Adult Ticket
-          </button>
-          <button
-            className="ticket-btn"
-            onClick={() => issueTicket("student")}
-            disabled={totalTickets >= passengers}
-          >
-            🎫 Student Ticket
-          </button>
+          <button className="ticket-btn" onClick={() => issueTicket("adult")} disabled={totalTickets >= passengers}>🎟️ Adult Ticket</button>
+          <button className="ticket-btn" onClick={() => issueTicket("student")} disabled={totalTickets >= passengers}>🎫 Student Ticket</button>
         </div>
         <div className="ticket-summary">
           <div><span>Adult tickets</span><strong>{adultTickets}</strong></div>
@@ -1338,9 +1346,7 @@ function BusGame({ settings, onFinish, onBack }) {
           <div><span>Money collected</span><strong>₹{revenue}</strong></div>
         </div>
         <div className="notice">{message}</div>
-        <button className="primary-btn full-btn" onClick={finish}>
-          Complete Bus Mission →
-        </button>
+        <button className="primary-btn full-btn" onClick={finish}>Complete Bus Mission →</button>
       </div>
     </section>
   );
@@ -1356,16 +1362,8 @@ function ResultPage({ result, onStartQuiz, onContinue }) {
       <p className="result-message">{result.message}</p>
 
       <div className="result-stats">
-        <div>
-          <span>⭐</span>
-          <strong>{result.score}</strong>
-          <small>Mission score</small>
-        </div>
-        <div>
-          <span>🪙</span>
-          <strong>+{result.reward}</strong>
-          <small>Coins earned</small>
-        </div>
+        <div><span>⭐</span><strong>{result.score}</strong><small>Mission score</small></div>
+        <div><span>🪙</span><strong>+{result.reward}</strong><small>Coins earned</small></div>
       </div>
 
       {result.alreadyCompleted && (
@@ -1377,20 +1375,14 @@ function ResultPage({ result, onStartQuiz, onContinue }) {
         <h2>Learning from your adventure 🧠</h2>
         <p>You just used real-life skills to solve a village challenge!</p>
         <ul>
-          {result.concepts.map((concept) => (
-            <li key={concept}>✓ {concept}</li>
-          ))}
+          {result.concepts.map((concept) => <li key={concept}>✓ {concept}</li>)}
         </ul>
       </div>
 
       <button className="primary-btn full-btn" onClick={onStartQuiz}>
         Take Your 5-Question Quiz 🧠 →
       </button>
-      <button
-        className="back-btn"
-        style={{ display: "block", margin: "14px auto 0" }}
-        onClick={onContinue}
-      >
+      <button className="back-btn" style={{ display: "block", margin: "14px auto 0" }} onClick={onContinue}>
         Return to Mission Village
       </button>
     </section>
@@ -1411,9 +1403,7 @@ function QuizPage({ mission, grade, questions, onComplete, onContinue }) {
   function checkAnswer() {
     if (!selected) return;
 
-    const correct = selected === currentQuestion.answer;
-
-    if (correct) {
+    if (selected === currentQuestion.answer) {
       setScore((current) => current + 1);
     }
 
@@ -1426,8 +1416,7 @@ function QuizPage({ mission, grade, questions, onComplete, onContinue }) {
       setSelected("");
       setChecked(false);
     } else {
-      const totalCorrect =
-        score + (selected === currentQuestion.answer ? 1 : 0);
+      const totalCorrect = score + (selected === currentQuestion.answer ? 1 : 0);
 
       setFinalScore(totalCorrect);
       setFinished(true);
@@ -1447,36 +1436,16 @@ function QuizPage({ mission, grade, questions, onComplete, onContinue }) {
             <p>Class {grade} · Test what you learned!</p>
           </div>
 
-          <div
-            className="task-card"
-            style={{ maxWidth: "720px", margin: "0 auto", padding: "28px" }}
-          >
+          <div className="task-card" style={{ maxWidth: "720px", margin: "0 auto", padding: "28px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
               <strong>Question {questionIndex + 1} of {questions.length}</strong>
               <span>⭐ Correct: {score}</span>
             </div>
 
-            <div
-              style={{
-                height: "9px",
-                background: "#e8eadc",
-                borderRadius: "20px",
-                overflow: "hidden",
-                margin: "16px 0 24px",
-              }}
-            >
-              <div
-                style={{
-                  width: `${((questionIndex + 1) / questions.length) * 100}%`,
-                  height: "100%",
-                  background: "#72945a",
-                  borderRadius: "20px",
-                  transition: "width 0.3s ease",
-                }}
-              />
+            <div style={{ height: "9px", background: "#e8eadc", borderRadius: "20px", overflow: "hidden", margin: "16px 0 24px" }}>
+              <div style={{ width: `${((questionIndex + 1) / questions.length) * 100}%`, height: "100%", background: "#72945a", borderRadius: "20px", transition: "width 0.3s ease" }} />
             </div>
 
-            {/* Quiz question colour fix */}
             <h2
               className="quiz-question"
               style={{
@@ -1525,9 +1494,7 @@ function QuizPage({ mission, grade, questions, onComplete, onContinue }) {
                       fontWeight: selected === option ? 700 : 500,
                     }}
                   >
-                    <span style={{ marginRight: "10px" }}>
-                      {String.fromCharCode(65 + index)}.
-                    </span>
+                    <span style={{ marginRight: "10px" }}>{String.fromCharCode(65 + index)}.</span>
                     {option}
                     {isCorrect && <span style={{ float: "right" }}>✓</span>}
                     {isWrong && <span style={{ float: "right" }}>✗</span>}
@@ -1537,16 +1504,14 @@ function QuizPage({ mission, grade, questions, onComplete, onContinue }) {
             </div>
 
             {checked && (
-              <div
-                style={{
-                  marginTop: "20px",
-                  padding: "14px",
-                  borderRadius: "10px",
-                  background: selected === currentQuestion.answer ? "#e5f4e5" : "#fbe9e5",
-                  color: "#263b2b",
-                  fontWeight: 600,
-                }}
-              >
+              <div style={{
+                marginTop: "20px",
+                padding: "14px",
+                borderRadius: "10px",
+                background: selected === currentQuestion.answer ? "#e5f4e5" : "#fbe9e5",
+                color: "#263b2b",
+                fontWeight: 600,
+              }}>
                 {selected === currentQuestion.answer
                   ? "🎉 Correct! You earned 20 bonus coins."
                   : `Not quite! The correct answer is: ${currentQuestion.answer}`}
@@ -1555,12 +1520,7 @@ function QuizPage({ mission, grade, questions, onComplete, onContinue }) {
 
             <div style={{ marginTop: "24px" }}>
               {!checked ? (
-                <button
-                  className="primary-btn full-btn"
-                  onClick={checkAnswer}
-                  disabled={!selected}
-                  style={{ opacity: selected ? 1 : 0.55 }}
-                >
+                <button className="primary-btn full-btn" onClick={checkAnswer} disabled={!selected} style={{ opacity: selected ? 1 : 0.55 }}>
                   Check Answer →
                 </button>
               ) : (
@@ -1572,47 +1532,28 @@ function QuizPage({ mission, grade, questions, onComplete, onContinue }) {
           </div>
         </>
       ) : (
-        <div
-          className="result-page"
-          style={{ maxWidth: "720px", margin: "0 auto" }}
-        >
+        <div className="result-page" style={{ maxWidth: "720px", margin: "0 auto" }}>
           <div className="result-confetti">🎉 ✨ 🎊 ✨ 🎉</div>
           <div className="result-medal">🧠</div>
           <span className="eyebrow">QUIZ COMPLETED</span>
           <h1>Well Done, Adventurer!</h1>
-          <p className="result-message">
-            You completed the {mission.name} quiz!
-          </p>
+          <p className="result-message">You completed the {mission.name} quiz!</p>
 
           <div className="result-stats">
-            <div>
-              <span>⭐</span>
-              <strong>{finalScore}/5</strong>
-              <small>Correct answers</small>
-            </div>
-            <div>
-              <span>🪙</span>
-              <strong>+{bonus}</strong>
-              <small>Bonus coins</small>
-            </div>
+            <div><span>⭐</span><strong>{finalScore}/5</strong><small>Correct answers</small></div>
+            <div><span>🪙</span><strong>+{bonus}</strong><small>Bonus coins</small></div>
           </div>
 
           <div className="learning-result-card">
             <h2>
-              {finalScore === 5
-                ? "Perfect Score! 🌟"
-                : finalScore >= 3
-                  ? "Great Effort! 👏"
-                  : "Keep Learning! 🌱"}
+              {finalScore === 5 ? "Perfect Score! 🌟" : finalScore >= 3 ? "Great Effort! 👏" : "Keep Learning! 🌱"}
             </h2>
             <p>
               {finalScore === 5
                 ? "Amazing! You answered every question correctly."
                 : "Every question is a chance to learn something new. Keep practising!"}
             </p>
-            <p style={{ marginTop: "12px" }}>
-              You earned {bonus} bonus coins for your correct answers.
-            </p>
+            <p style={{ marginTop: "12px" }}>You earned {bonus} bonus coins for your correct answers.</p>
           </div>
 
           <button className="primary-btn full-btn" onClick={onContinue}>
