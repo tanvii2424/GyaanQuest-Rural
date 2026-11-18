@@ -36,7 +36,6 @@ const missions = [
   },
 ];
 
-// Creates five questions according to the selected mission and class.
 function getQuizQuestions(missionId, grade) {
   const level = Number(grade);
   const settings = gradeSettings[grade];
@@ -49,9 +48,10 @@ function getQuizQuestions(missionId, grade) {
       text,
       answer,
       options: options.sort((a, b) => {
-        // Keep the answer position varied without randomizing on every render.
-        return (a.length + a.charCodeAt(0)) % 3 -
-          ((b.length + b.charCodeAt(0)) % 3);
+        return (
+          (a.length + a.charCodeAt(0)) % 3 -
+          ((b.length + b.charCodeAt(0)) % 3)
+        );
       }),
     };
   }
@@ -182,6 +182,7 @@ function App() {
   const [stars, setStars] = useState(0);
   const [completed, setCompleted] = useState([]);
   const [lastResult, setLastResult] = useState(null);
+  const [quizResults, setQuizResults] = useState([]);
 
   const settings = gradeSettings[grade];
 
@@ -226,8 +227,17 @@ function App() {
     setPage("result");
   }
 
-  function finishQuiz(bonus) {
-    setCoins((current) => current + bonus);
+  function finishQuiz(score, missionId) {
+    setCoins((current) => current + score * 20);
+
+    setQuizResults((current) => [
+      ...current,
+      {
+        missionId,
+        score,
+        date: new Date().toLocaleDateString(),
+      },
+    ]);
   }
 
   function returnToVillage() {
@@ -281,6 +291,19 @@ function App() {
             stars={stars}
             completed={completed}
             onOpenMission={openMission}
+            onOpenProgress={() => setPage("progress")}
+          />
+        )}
+
+        {page === "progress" && (
+          <ProgressPage
+            studentName={studentName}
+            grade={grade}
+            coins={coins}
+            stars={stars}
+            completed={completed}
+            quizResults={quizResults}
+            onBack={() => setPage("dashboard")}
           />
         )}
 
@@ -525,6 +548,7 @@ function Dashboard({
   stars,
   completed,
   onOpenMission,
+  onOpenProgress,
 }) {
   return (
     <section className="dashboard-page">
@@ -535,6 +559,13 @@ function Dashboard({
           <p>
             Class {grade} · {mode === "team" ? `Team of ${teamMembers}` : "Individual Player"}
           </p>
+          <button
+            className="primary-btn"
+            style={{ marginTop: "16px" }}
+            onClick={onOpenProgress}
+          >
+            📊 My Progress →
+          </button>
         </div>
         <div className="dashboard-avatar">🧑‍🌾</div>
       </div>
@@ -614,6 +645,253 @@ function Dashboard({
           </div>
         </div>
       </div>
+    </section>
+  );
+}
+
+function ProgressPage({
+  studentName,
+  grade,
+  coins,
+  stars,
+  completed,
+  quizResults,
+  onBack,
+}) {
+  const totalCorrect = quizResults.reduce(
+    (total, quiz) => total + quiz.score,
+    0
+  );
+
+  const totalQuestions = quizResults.length * 5;
+
+  const average =
+    totalQuestions === 0
+      ? 0
+      : Math.round((totalCorrect / totalQuestions) * 100);
+
+  const level = Math.floor(stars / 3) + 1;
+
+  const badges = [
+    {
+      icon: "🌾",
+      name: "Farm Explorer",
+      description: "Complete Smart Farming",
+      unlocked: completed.includes("farm"),
+    },
+    {
+      icon: "💧",
+      name: "Water Guardian",
+      description: "Complete Save Every Drop",
+      unlocked: completed.includes("water"),
+    },
+    {
+      icon: "🚌",
+      name: "Transport Manager",
+      description: "Complete Village Bus Stand",
+      unlocked: completed.includes("bus"),
+    },
+    {
+      icon: "🧠",
+      name: "Quiz Champion",
+      description: "Get a perfect quiz score",
+      unlocked: quizResults.some((quiz) => quiz.score === 5),
+    },
+    {
+      icon: "🏆",
+      name: "Village Hero",
+      description: "Complete all three missions",
+      unlocked: completed.length === 3,
+    },
+  ];
+
+  return (
+    <section className="progress-page">
+      <button className="back-btn" onClick={onBack}>
+        ← Back to Village
+      </button>
+
+      <div className="section-heading">
+        <span className="eyebrow">YOUR LEARNING JOURNEY</span>
+        <h1>My Progress 📊</h1>
+        <p>Look how far you've come, {studentName}!</p>
+      </div>
+
+      <div
+        className="task-card"
+        style={{
+          maxWidth: "850px",
+          margin: "0 auto 24px",
+          textAlign: "center",
+          padding: "28px",
+        }}
+      >
+        <div style={{ fontSize: "48px" }}>🌟</div>
+        <h2 style={{ margin: "8px 0" }}>Level {level} Adventurer</h2>
+        <p>Class {grade} · Keep learning and growing!</p>
+        <div
+          style={{
+            height: "12px",
+            background: "#e8eadc",
+            borderRadius: "20px",
+            marginTop: "18px",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              width: `${(stars % 3) * 33.33}%`,
+              height: "100%",
+              background: "#d5a83e",
+              borderRadius: "20px",
+            }}
+          />
+        </div>
+        <small>{stars % 3} / 3 stars towards your next level</small>
+      </div>
+
+      <div className="stats-grid">
+        <div className="stat-card">
+          <span>🪙</span>
+          <div>
+            <strong>{coins}</strong>
+            <small>Total Coins</small>
+          </div>
+        </div>
+        <div className="stat-card">
+          <span>⭐</span>
+          <div>
+            <strong>{stars}</strong>
+            <small>Stars Earned</small>
+          </div>
+        </div>
+        <div className="stat-card">
+          <span>🏅</span>
+          <div>
+            <strong>{completed.length}/3</strong>
+            <small>Missions Completed</small>
+          </div>
+        </div>
+      </div>
+
+      <div className="task-card" style={{ maxWidth: "850px", margin: "24px auto" }}>
+        <span className="eyebrow">QUIZ PERFORMANCE</span>
+        <h2 style={{ margin: "8px 0 18px" }}>Your Learning Score 🧠</h2>
+
+        <div className="stats-grid">
+          <div className="stat-card">
+            <span>📝</span>
+            <div>
+              <strong>{quizResults.length}</strong>
+              <small>Quizzes Taken</small>
+            </div>
+          </div>
+          <div className="stat-card">
+            <span>✅</span>
+            <div>
+              <strong>{totalCorrect}/{totalQuestions}</strong>
+              <small>Correct Answers</small>
+            </div>
+          </div>
+          <div className="stat-card">
+            <span>📈</span>
+            <div>
+              <strong>{average}%</strong>
+              <small>Average Accuracy</small>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ marginTop: "22px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "8px",
+              fontWeight: 700,
+            }}
+          >
+            <span>Overall quiz accuracy</span>
+            <span>{average}%</span>
+          </div>
+          <div
+            style={{
+              height: "13px",
+              background: "#e8eadc",
+              borderRadius: "20px",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                width: `${average}%`,
+                height: "100%",
+                background: "#72945a",
+                borderRadius: "20px",
+                transition: "width 0.4s ease",
+              }}
+            />
+          </div>
+        </div>
+
+        {quizResults.length === 0 && (
+          <p style={{ marginTop: "18px" }}>
+            Complete a mission quiz to see your quiz performance here!
+          </p>
+        )}
+      </div>
+
+      <div className="task-card" style={{ maxWidth: "850px", margin: "24px auto" }}>
+        <span className="eyebrow">YOUR ACHIEVEMENTS</span>
+        <h2 style={{ margin: "8px 0 20px" }}>Badges Collection 🏆</h2>
+
+        <div className="topic-grid">
+          {badges.map((badge) => (
+            <div
+              className="topic-card"
+              key={badge.name}
+              style={{
+                opacity: badge.unlocked ? 1 : 0.5,
+                border: badge.unlocked
+                  ? "2px solid #d5a83e"
+                  : "1px solid #e0e2d6",
+              }}
+            >
+              <span style={{ fontSize: "32px" }}>
+                {badge.unlocked ? badge.icon : "🔒"}
+              </span>
+              <div>
+                <strong>{badge.name}</strong>
+                <p>{badge.description}</p>
+                <small style={{ fontWeight: 700 }}>
+                  {badge.unlocked ? "✓ Unlocked" : "Not unlocked yet"}
+                </small>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div
+        className="learning-result-card"
+        style={{ maxWidth: "850px", margin: "24px auto", textAlign: "center" }}
+      >
+        <div style={{ fontSize: "38px" }}>🌱</div>
+        <h2>Every Step Counts!</h2>
+        <p>
+          You've completed {completed.length} out of 3 village missions and
+          answered {totalCorrect} quiz questions correctly. Keep exploring,
+          practising and earning rewards!
+        </p>
+      </div>
+
+      <button
+        className="primary-btn full-btn"
+        style={{ maxWidth: "850px", display: "block", margin: "20px auto" }}
+        onClick={onBack}
+      >
+        Continue Exploring the Village →
+      </button>
     </section>
   );
 }
@@ -1075,21 +1353,15 @@ function QuizPage({ mission, grade, questions, onComplete, onContinue }) {
   }
 
   function nextQuestion() {
-    const correct = selected === currentQuestion.answer;
-    const updatedScore = score;
-
-    // The score state is already updated when the answer is checked.
-    const final = updatedScore;
-
     if (questionIndex < questions.length - 1) {
       setQuestionIndex((current) => current + 1);
       setSelected("");
       setChecked(false);
     } else {
-      const totalCorrect = final;
+      const totalCorrect = score;
       setFinalScore(totalCorrect);
       setFinished(true);
-      onComplete(totalCorrect * 20);
+      onComplete(totalCorrect, mission.id);
     }
   }
 
