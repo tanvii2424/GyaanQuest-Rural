@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
+
 const gradeSettings = {
   7: { farmTarget: 3, farmWater: 3, waterTarget: 600, busCapacity: 12, fare: 10 },
   8: { farmTarget: 4, farmWater: 4, waterTarget: 900, busCapacity: 16, fare: 12 },
