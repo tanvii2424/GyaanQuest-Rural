@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 const gradeSettings = {
@@ -171,20 +171,85 @@ function getQuizQuestions(missionId, grade) {
   ];
 }
 
+const STORAGE_KEY = "gyaanquest-saved-progress";
+
+function loadSavedProgress() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : {};
+  } catch {
+    return {};
+  }
+}
+
 function App() {
-  const [page, setPage] = useState("welcome");
-  const [studentName, setStudentName] = useState("");
-  const [grade, setGrade] = useState("7");
-  const [mode, setMode] = useState("individual");
-  const [teamMembers, setTeamMembers] = useState(3);
+  const [savedProgress] = useState(loadSavedProgress);
+
+  // FIX 1: Restore the dashboard when saved student details exist.
+  const [page, setPage] = useState(() =>
+    savedProgress.studentName ? "dashboard" : "welcome"
+  );
+
+  const [studentName, setStudentName] = useState(
+    () => savedProgress.studentName || ""
+  );
+  const [grade, setGrade] = useState(
+    () => savedProgress.grade || "7"
+  );
+  const [mode, setMode] = useState(
+    () => savedProgress.mode || "individual"
+  );
+  const [teamMembers, setTeamMembers] = useState(
+    () => savedProgress.teamMembers || 3
+  );
   const [activeMission, setActiveMission] = useState(null);
-  const [coins, setCoins] = useState(500);
-  const [stars, setStars] = useState(0);
-  const [completed, setCompleted] = useState([]);
+  const [coins, setCoins] = useState(
+    () => savedProgress.coins ?? 500
+  );
+  const [stars, setStars] = useState(
+    () => savedProgress.stars ?? 0
+  );
+  const [completed, setCompleted] = useState(
+    () => savedProgress.completed || []
+  );
   const [lastResult, setLastResult] = useState(null);
-  const [quizResults, setQuizResults] = useState([]);
+  const [quizResults, setQuizResults] = useState(
+    () => savedProgress.quizResults || []
+  );
 
   const settings = gradeSettings[grade];
+
+  // Save student progress whenever any saved value changes.
+  useEffect(() => {
+    const progressData = {
+      studentName,
+      grade,
+      mode,
+      teamMembers,
+      coins,
+      stars,
+      completed,
+      quizResults,
+    };
+
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(progressData)
+      );
+    } catch (error) {
+      console.error("Unable to save progress:", error);
+    }
+  }, [
+    studentName,
+    grade,
+    mode,
+    teamMembers,
+    coins,
+    stars,
+    completed,
+    quizResults,
+  ]);
 
   function startSetup() {
     setPage("setup");
@@ -1023,7 +1088,12 @@ function WaterGame({ settings, onFinish, onBack }) {
     setAllocation((current) => {
       const updated = [...current];
       const nextValue = Math.max(0, Math.min(targetEach, updated[index] + amount));
-      const otherTotal = updated.reduce((sum, value, i) => i === index ? value : sum + value, 0);
+
+      const otherTotal = updated.reduce(
+        (sum, value, i) => i === index ? sum : sum + value,
+        0
+      );
+
       updated[index] = Math.min(nextValue, total - otherTotal);
       return updated;
     });
@@ -1358,7 +1428,11 @@ function QuizPage({ mission, grade, questions, onComplete, onContinue }) {
       setSelected("");
       setChecked(false);
     } else {
-      const totalCorrect = score;
+      // FIX 2: Include the current answer because React state
+      // may not have updated the score before this function runs.
+      const totalCorrect =
+        score + (selected === currentQuestion.answer ? 1 : 0);
+
       setFinalScore(totalCorrect);
       setFinished(true);
       onComplete(totalCorrect, mission.id);

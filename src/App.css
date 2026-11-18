@@ -1720,3 +1720,323 @@ button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
 }
+
+/* ==================== MY PROGRESS PAGE ==================== */
+
+.progress-page {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.progress-header h1 {
+  color: #285c38;
+  font-size: clamp(27px, 4vw, 36px);
+  margin: 9px 0;
+}
+
+.progress-header p {
+  color: #778477;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.progress-level-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 27px;
+  margin-bottom: 22px;
+  background: linear-gradient(120deg, #e4f2d9, #f5f7e9);
+  border: 1px solid #dcebd2;
+  border-radius: 20px;
+}
+
+.progress-level-card h2 {
+  color: #285c38;
+  font-size: 25px;
+  margin: 8px 0;
+}
+
+.progress-level-card p {
+  color: #718071;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.progress-level-icon {
+  width: 85px;
+  height: 85px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 50%;
+  font-size: 45px;
+}
+
+.progress-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+  margin: 22px 0 30px;
+}
+
+.progress-stat-card {
+  min-width: 0;
+  padding: 20px 14px;
+  background: white;
+  border: 1px solid #e8eddf;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 4px 15px #344b3008;
+}
+
+.progress-stat-card span {
+  display: block;
+  font-size: 29px;
+  margin-bottom: 8px;
+}
+
+.progress-stat-card strong {
+  display: block;
+  color: #347d46;
+  font-size: 25px;
+}
+
+.progress-stat-card small {
+  display: block;
+  color: #829080;
+  font-size: 11px;
+  margin-top: 5px;
+}
+
+.progress-section {
+  padding: 24px;
+  margin: 20px 0;
+  background: white;
+  border: 1px solid #e8eddf;
+  border-radius: 17px;
+}
+
+.progress-section h2 {
+  color: #315d38;
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.progress-section > p {
+  color: #829080;
+  font-size: 12px;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.progress-bar-item {
+  margin: 19px 0;
+}
+
+.progress-bar-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 9px;
+  color: #405442;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.progress-bar-heading strong {
+  color: #347d46;
+}
+
+.progress-track {
+  width: 100%;
+  height: 12px;
+  overflow: hidden;
+  background: #edf2e9;
+  border-radius: 20px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #65a76b, #347d46);
+  border-radius: 20px;
+  transition: width 0.4s ease;
+}
+
+.quiz-performance {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.quiz-performance-card {
+  padding: 17px 10px;
+  background: #f5f9ef;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.quiz-performance-card strong {
+  display: block;
+  color: #347d46;
+  font-size: 22px;
+}
+
+.quiz-performance-card small {
+  display: block;
+  color: #829080;
+  font-size: 11px;
+  margin-top: 5px;
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.progress-badge {
+  min-width: 0;
+  padding: 17px 10px;
+  background: #f8faf5;
+  border: 1px solid #e8eddf;
+  border-radius: 13px;
+  text-align: center;
+}
+
+.progress-badge span {
+  display: block;
+  font-size: 34px;
+  margin-bottom: 8px;
+}
+
+.progress-badge strong {
+  display: block;
+  color: #315d38;
+  font-size: 12px;
+}
+
+.progress-badge small {
+  display: block;
+  color: #829080;
+  font-size: 10px;
+  margin-top: 5px;
+  line-height: 1.5;
+}
+
+.progress-badge.locked {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
+.progress-encouragement {
+  padding: 22px;
+  margin-top: 22px;
+  background: #fff5df;
+  border: 1px solid #f0e5c8;
+  border-radius: 15px;
+  text-align: center;
+}
+
+.progress-encouragement h3 {
+  color: #795e2c;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.progress-encouragement p {
+  color: #887650;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* MY PROGRESS RESPONSIVE */
+
+@media (max-width: 600px) {
+  .progress-level-card {
+    padding: 20px 16px;
+  }
+
+  .progress-level-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 32px;
+  }
+
+  .progress-stats {
+    gap: 8px;
+  }
+
+  .progress-stat-card {
+    padding: 15px 6px;
+  }
+
+  .progress-stat-card span {
+    font-size: 24px;
+  }
+
+  .progress-stat-card strong {
+    font-size: 20px;
+  }
+
+  .progress-stat-card small {
+    font-size: 9px;
+  }
+
+  .progress-section {
+    padding: 18px 14px;
+  }
+
+  .quiz-performance {
+    gap: 7px;
+  }
+
+  .quiz-performance-card {
+    padding: 13px 5px;
+  }
+
+  .quiz-performance-card strong {
+    font-size: 19px;
+  }
+
+  .quiz-performance-card small {
+    font-size: 9px;
+  }
+
+  .badges-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+/* Darker and clearer quiz text */
+.quiz-question,
+.quiz-card h2,
+.quiz-card h3,
+.quiz-card p,
+.quiz-option,
+.quiz-option span {
+  color: #263b2b !important;
+}
+
+.quiz-question,
+.quiz-card h2,
+.quiz-card h3 {
+  font-weight: 800;
+}
+
+.quiz-option {
+  font-weight: 700;
+}
