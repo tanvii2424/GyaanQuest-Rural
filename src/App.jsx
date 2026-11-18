@@ -1,5 +1,4 @@
-
-import { useEffect, useState } from "react";
+mport { useEffect, useState } from "react";
 import "./App.css";
 
 const gradeSettings = {
@@ -33,6 +32,14 @@ const missions = [
     subject: "Maths + Life Skills",
     description: "Manage a busy bus stand, plan routes and help passengers travel safely.",
     color: "bus",
+  },
+  {
+    id: "nature",
+    icon: "🌿",
+    name: "Nature Explorer",
+    subject: "Science",
+    description: "Explore the water cycle, plant life and food chains through fun science challenges.",
+    color: "nature",
   },
 ];
 
@@ -130,6 +137,36 @@ function getQuizQuestions(missionId, grade) {
         `The village collects ${settings.waterTarget} litres and distributes ${settings.waterTarget} litres equally. How much water remains?`,
         0,
         [50, each, settings.waterTarget / 2]
+      ),
+    ];
+  }
+
+  if (missionId === "nature") {
+    return [
+      question(
+        "What is the process called when the Sun heats water and changes it into water vapour?",
+        "Evaporation",
+        ["Condensation", "Freezing", "Collection"]
+      ),
+      question(
+        "Which three things do green plants mainly need for photosynthesis?",
+        "Sunlight, water and carbon dioxide",
+        ["Moonlight, soil and oxygen", "Only water and soil", "Sunlight, sand and oxygen"]
+      ),
+      question(
+        "In the food chain grass → grasshopper → frog, what eats the grasshopper?",
+        "Frog",
+        ["Grass", "Sun", "Tree"]
+      ),
+      question(
+        "What forms when water vapour cools in the atmosphere?",
+        "Tiny water droplets",
+        ["Seeds", "Rocks", "Fire"]
+      ),
+      question(
+        "Which part of a plant usually absorbs water from the soil?",
+        "Roots",
+        ["Flowers", "Fruits", "Leaves"]
       ),
     ];
   }
@@ -549,6 +586,22 @@ function App() {
           />
         )}
 
+        {page === "game" && activeMission?.id === "nature" && (
+          <NatureExplorerGame
+            onFinish={(score, reward, title, concepts, message) =>
+              finishMission(
+                "nature",
+                score,
+                reward,
+                title,
+                concepts,
+                message
+              )
+            }
+            onBack={returnToVillage}
+          />
+        )}
+
         {page === "result" && lastResult && (
           <ResultPage
             result={lastResult}
@@ -823,7 +876,7 @@ function Dashboard({
         </div>
         <div className="stat-card">
           <span>🏅</span>
-          <div><strong>{completed.length}/3</strong><small>Missions Completed</small></div>
+          <div><strong>{completed.length}/4</strong><small>Missions Completed</small></div>
         </div>
       </div>
 
@@ -831,7 +884,7 @@ function Dashboard({
         <div>
           <span className="eyebrow">YOUR VILLAGE NEEDS YOU</span>
           <h2>Choose Your Mission</h2>
-          <p>Three adventures. Three ways to make a difference!</p>
+          <p>Four adventures. Four ways to make a difference!</p>
         </div>
       </div>
 
@@ -888,6 +941,13 @@ function Dashboard({
               <p>Passenger counting, multiplication, money and capacity.</p>
             </div>
           </div>
+          <div className="topic-card">
+            <span>🌿</span>
+            <div>
+              <strong>Nature Explorer</strong>
+              <p>Water cycle, photosynthesis, plant life and food chains.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -919,8 +979,9 @@ function ProgressPage({
     { icon: "🌾", name: "Farm Explorer", description: "Complete Smart Farming", unlocked: completed.includes("farm") },
     { icon: "💧", name: "Water Guardian", description: "Complete Save Every Drop", unlocked: completed.includes("water") },
     { icon: "🚌", name: "Transport Manager", description: "Complete Village Bus Stand", unlocked: completed.includes("bus") },
+    { icon: "🌿", name: "Nature Explorer", description: "Complete Nature Explorer", unlocked: completed.includes("nature") },
     { icon: "🧠", name: "Quiz Champion", description: "Get a perfect quiz score", unlocked: quizResults.some((quiz) => quiz.score === 5) },
-    { icon: "🏆", name: "Village Hero", description: "Complete all three missions", unlocked: completed.length === 3 },
+    { icon: "🏆", name: "Village Hero", description: "Complete all four missions", unlocked: completed.length === 4 },
   ];
 
   return (
@@ -946,7 +1007,7 @@ function ProgressPage({
       <div className="stats-grid">
         <div className="stat-card"><span>🪙</span><div><strong>{coins}</strong><small>Total Coins</small></div></div>
         <div className="stat-card"><span>⭐</span><div><strong>{stars}</strong><small>Stars Earned</small></div></div>
-        <div className="stat-card"><span>🏅</span><div><strong>{completed.length}/3</strong><small>Missions Completed</small></div></div>
+        <div className="stat-card"><span>🏅</span><div><strong>{completed.length}/4</strong><small>Missions Completed</small></div></div>
       </div>
 
       <div className="task-card" style={{ maxWidth: "850px", margin: "24px auto" }}>
@@ -995,7 +1056,7 @@ function ProgressPage({
         <div style={{ fontSize: "38px" }}>🌱</div>
         <h2>Every Step Counts!</h2>
         <p>
-          You've completed {completed.length} out of 3 village missions and
+          You've completed {completed.length} out of 4 village missions and
           answered {totalCorrect} quiz questions correctly. Keep exploring,
           practising and earning rewards!
         </p>
@@ -1564,5 +1625,165 @@ function QuizPage({ mission, grade, questions, onComplete, onContinue }) {
     </section>
   );
 }
+
+
+function NatureExplorerGame({ onFinish, onBack }) {
+  const challenges = [
+    {
+      title: "🌧️ Water Cycle",
+      description: "Help the village understand how water moves through nature.",
+      question: "What happens when the Sun heats water in rivers and lakes?",
+      options: ["Freezing", "Evaporation", "Condensation", "Rainfall"],
+      answer: "Evaporation",
+      explanation: "The Sun heats water and changes it into water vapour. This process is called evaporation.",
+    },
+    {
+      title: "🌱 Plant Life",
+      description: "Help a farmer grow healthy plants.",
+      question: "What do green plants mainly need to make their food?",
+      options: ["Sunlight, water and carbon dioxide", "Only soil", "Only water", "Sand and stones"],
+      answer: "Sunlight, water and carbon dioxide",
+      explanation: "Plants use sunlight, water and carbon dioxide to prepare food through photosynthesis.",
+    },
+    {
+      title: "🦋 Food Chains",
+      description: "Discover how living things depend on each other.",
+      question: "In a grass → grasshopper → frog food chain, what eats the grasshopper?",
+      options: ["Grass", "Frog", "Sun", "Tree"],
+      answer: "Frog",
+      explanation: "The frog eats the grasshopper. This shows how energy moves through a food chain.",
+    },
+  ];
+
+  const [current, setCurrent] = useState(0);
+  const [selected, setSelected] = useState("");
+  const [answers, setAnswers] = useState([]);
+  const [showFeedback, setShowFeedback] = useState(false);
+
+  const challenge = challenges[current];
+  const correctCount = answers.filter(Boolean).length;
+  const isCorrect = selected === challenge.answer;
+
+  function checkAnswer() {
+    if (!selected || showFeedback) return;
+    setAnswers((previous) => [...previous, isCorrect]);
+    setShowFeedback(true);
+  }
+
+  function nextChallenge() {
+    if (current < challenges.length - 1) {
+      setCurrent((value) => value + 1);
+      setSelected("");
+      setShowFeedback(false);
+      return;
+    }
+
+    const finalScore = correctCount;
+    const reward = finalScore * 30;
+    onFinish(
+      finalScore,
+      reward,
+      "Nature Explorer!",
+      [
+        "Understanding evaporation and the water cycle",
+        "Learning how plants make food through photosynthesis",
+        "Understanding food chains and how living things depend on each other",
+      ],
+      `You completed ${finalScore} out of 3 nature challenges. Keep exploring and caring for the environment!`
+    );
+  }
+
+  return (
+    <section className="game-page">
+      <button className="back-btn" onClick={onBack}>← Leave Mission</button>
+
+      <div className="game-heading">
+        <span className="eyebrow">SCIENCE MISSION 04</span>
+        <h1>🌿 Nature Explorer</h1>
+        <p>Explore nature, learn science and help protect your village!</p>
+      </div>
+
+      <div
+        style={{
+          minHeight: "150px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-around",
+          flexWrap: "wrap",
+          gap: "12px",
+          fontSize: "clamp(32px, 6vw, 58px)",
+          background: "linear-gradient(180deg, #dff2fa 0%, #eaf4d9 68%, #c9dfad 68%)",
+          borderRadius: "20px",
+          padding: "20px",
+        }}
+      >
+        <span>☀️</span><span>☁️</span><span>🌳</span><span>🌱</span><span>🦋</span><span>💧</span>
+      </div>
+
+      <div className="task-card" style={{ maxWidth: "780px", margin: "22px auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
+          <strong>CHALLENGE {current + 1} OF {challenges.length}</strong>
+          <strong>🌟 {correctCount} correct</strong>
+        </div>
+
+        <div style={{ height: "10px", background: "#e8eadc", borderRadius: "20px", overflow: "hidden", margin: "14px 0 22px" }}>
+          <div style={{ width: `${((current + 1) / challenges.length) * 100}%`, height: "100%", background: "#72945a", borderRadius: "20px", transition: "width 0.3s ease" }} />
+        </div>
+
+        <h2 style={{ marginBottom: "8px", color: "#263b2b" }}>{challenge.title}</h2>
+        <p style={{ marginBottom: "20px" }}>{challenge.description}</p>
+        <h3 style={{ color: "#263b2b", lineHeight: 1.5, marginBottom: "18px" }}>{challenge.question}</h3>
+
+        <div style={{ display: "grid", gap: "11px" }}>
+          {challenge.options.map((option, index) => {
+            const correctOption = showFeedback && option === challenge.answer;
+            const wrongOption = showFeedback && selected === option && !isCorrect;
+            return (
+              <button
+                key={option}
+                onClick={() => !showFeedback && setSelected(option)}
+                disabled={showFeedback}
+                style={{
+                  width: "100%",
+                  textAlign: "left",
+                  padding: "14px 16px",
+                  borderRadius: "12px",
+                  border: correctOption ? "2px solid #4b9255" : wrongOption ? "2px solid #c65b4d" : selected === option ? "2px solid #78985d" : "1px solid #d9ddcc",
+                  background: correctOption ? "#e5f4e5" : wrongOption ? "#fbe9e5" : selected === option ? "#edf2e5" : "#fff",
+                  color: "#263b2b",
+                  cursor: showFeedback ? "default" : "pointer",
+                  fontSize: "15px",
+                  fontWeight: selected === option ? 700 : 500,
+                }}
+              >
+                <span style={{ marginRight: "10px" }}>{String.fromCharCode(65 + index)}.</span>
+                {option}
+                {correctOption && <span style={{ float: "right" }}>✓</span>}
+                {wrongOption && <span style={{ float: "right" }}>✗</span>}
+              </button>
+            );
+          })}
+        </div>
+
+        {showFeedback && (
+          <div style={{ marginTop: "18px", padding: "14px", borderRadius: "10px", background: isCorrect ? "#e5f4e5" : "#fbe9e5", color: "#263b2b", fontWeight: 600 }}>
+            {isCorrect ? "🎉 Correct! " : "Not quite. "}{challenge.explanation}
+          </div>
+        )}
+
+        {!showFeedback ? (
+          <button className="primary-btn full-btn" style={{ marginTop: "22px", opacity: selected ? 1 : 0.55 }} onClick={checkAnswer} disabled={!selected}>
+            Check Answer →
+          </button>
+        ) : (
+          <button className="primary-btn full-btn" style={{ marginTop: "22px" }} onClick={nextChallenge}>
+            {current === challenges.length - 1 ? "Complete Nature Mission →" : "Next Challenge →"}
+          </button>
+        )}
+      </div>
+    </section>
+  );
+}
+
 
 export default App;
